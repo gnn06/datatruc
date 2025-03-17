@@ -11,12 +11,32 @@ type ApplicationPolicyRow = {
     patch_policy: string;
 }
 
-const VM = [{vm:'titane7p',cve:123}]
+const VM = [{ vm: 'titane7p', cve: 123 }, { vm: 'nickel-cms1', cve: 12 }]
 
-const ApplicationPolicy = [{application:'titane7p',patch_policy:'patch lors du PCA'}]
+const ApplicationPolicy = [{ application: 'titane7p', patch_policy: 'patch lors du PCA' }]
 
 test('should ', () => {
-    console.log(VM)
-    const data = Enumerable.from(VM).join(ApplicationPolicy, outer=>outer.vm, inner=>inner.application,(outer,inner)=>{return{vm:outer.vm, cve:outer.vm, patch_policy:inner.patch_policy}}).toArray()
-    console.log(data)
+    const expected = [{
+        "vm": "titane7p",
+        "cve": 123,
+        "patch_policy": "patch lors du PCA",
+    }, {
+        "vm": "nickel-cms1",
+        "cve": 12,
+        "patch_policy": "",
+
+    }]
+    const result = Enumerable
+        .from(VM)
+        .leftJoin(ApplicationPolicy,
+            outer => outer.vm,
+            inner => inner.application,
+            (outer, inner) => {
+                return {
+                    vm: outer.vm,
+                    cve: outer.cve,
+                    patch_policy: inner?.patch_policy ?? ''
+                }
+            }).toArray()
+    expect(result).toEqual(expected)
 });
