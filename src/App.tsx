@@ -1,11 +1,12 @@
 import './App.css'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import {
     MaterialReactTable,
     useMaterialReactTable,
     type MRT_ColumnDef,
 } from 'material-react-table';
 import { join } from './service';
+import CSVReader from 'react-csv-reader'
 
 type VM_Row = {
     vm: string;
@@ -25,7 +26,8 @@ type Row = {
 };
 
 function App() {
-    const columns = useMemo<MRT_ColumnDef<Row>[]>(
+    const [data, setData] = useState([])
+    const columns = useMemo(
         () => [
             {
                 accessorKey: 'vm', //access nested data with dot notation
@@ -55,7 +57,7 @@ function App() {
 
     const ApplicationPolicy: Array<ApplicationPolicyRow> = [{ application: 'titane7p', patch_policy: 'patch lors du PCA' }, { application: 'chrome-ses2', patch_policy: 'pas de patch, machine obsolète' }]
 
-    const data = join(VM, ApplicationPolicy)
+    
 
     // const data: Row[] = [
     //   {
@@ -70,6 +72,14 @@ function App() {
         columns,
         data, //data must be memoized or stable (useState, useMemo, defined outside of this component, etc.)
     });
-    return <MaterialReactTable table={table} />;
+    const onCSVuploaded = (data, fileInfo, originalFile) => {
+        let dataUploaded = data.slice(1).map(item => ({vm:item[0], cve:item[1]}))
+        dataUploaded = join(dataUploaded, ApplicationPolicy)
+        setData(dataUploaded)
+    }
+    return (<>
+        <CSVReader onFileLoaded={onCSVuploaded} />
+        <MaterialReactTable table={table} />
+    </>);
 }
 export default App
