@@ -26,7 +26,10 @@ type Row = {
 };
 
 function App() {
+    const [listVM, setListVM] = useState([])
+    const [listPatchPolicy, setListPatchPolicy] = useState([])
     const [data, setData] = useState([])
+
     const columns = useMemo(
         () => [
             {
@@ -45,40 +48,33 @@ function App() {
                 size: 200,
             },
             {
-                accessorKey: 'patch_policy',
-                header: 'patch_policy',
+                accessorKey: 'patchPolicy',
+                header: 'patch policy',
                 size: 150,
             },
         ],
         [],
     );
 
-    const VM: Array<VM_Row> = [{ vm: 'titane7p', cve: 1238 }, { vm: 'chrome-ses2', cve: 123 }]
+    const table = useMaterialReactTable({ columns, data });
 
-    const ApplicationPolicy: Array<ApplicationPolicyRow> = [{ application: 'titane7p', patch_policy: 'patch lors du PCA' }, { application: 'chrome-ses2', patch_policy: 'pas de patch, machine obsolète' }]
-
-    
-
-    // const data: Row[] = [
-    //   {
-    //     vm: 'titane7p',
-    //     cve: '2134',
-    //     application: 'bdd_prod',
-    //     patch_policy: 'patch lors du PCA',
-    //   },
-    // ];
-
-    const table = useMaterialReactTable({
-        columns,
-        data, //data must be memoized or stable (useState, useMemo, defined outside of this component, etc.)
-    });
-    const onCSVuploaded = (data, fileInfo, originalFile) => {
-        let dataUploaded = data.slice(1).map(item => ({vm:item[0], cve:item[1]}))
-        dataUploaded = join(dataUploaded, ApplicationPolicy)
-        setData(dataUploaded)
+    const onVM_Upload = (data, fileInfo, originalFile) => {
+        const newListVM = data.slice(1).map(item => ({ vm: item[0], cve: item[1] }))
+        setListVM(newListVM)
+        const newData = join(newListVM, listPatchPolicy)
+        setData(newData)
     }
+    const onPatchPolicyUpload = (data, fileInfo, originalFile) => {
+        let newListPatchPolicy = data.slice(1).map(item => ({ application: item[0], patchPolicy: item[1] }))
+        setListPatchPolicy(newListPatchPolicy)
+        const newData = join(listVM, newListPatchPolicy)
+        setData(newData)
+
+    }
+
     return (<>
-        <CSVReader onFileLoaded={onCSVuploaded} />
+        <CSVReader label="VM" onFileLoaded={onVM_Upload} />
+        <CSVReader label="patch policies" onFileLoaded={onPatchPolicyUpload} />
         <MaterialReactTable table={table} />
     </>);
 }

@@ -10,7 +10,7 @@ export function join(coll1, coll2) {
                 return {
                     vm: outer.vm,
                     cve: outer.cve,
-                    patch_policy: inner?.patch_policy ?? ''
+                    patchPolicy: inner?.patchPolicy ?? ''
                 }
             }).toArray()
     return result
