@@ -1,7 +1,4 @@
-import Enumerable from 'linq'
-
-export function join(VM, patch_policies) {
-    const result = Enumerable
+return Enumerable
         .from(VM)
         .leftJoin(patch_policies,
             outer => outer.vm,
@@ -12,6 +9,4 @@ export function join(VM, patch_policies) {
                     cve: outer.cve,
                     patchPolicy: inner?.patchPolicy ?? ''
                 }
-            }).toArray()
-    return result
-}
+            }).toArray();

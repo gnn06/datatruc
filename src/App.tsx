@@ -5,8 +5,8 @@ import {
     useMaterialReactTable,
     type MRT_ColumnDef,
 } from 'material-react-table';
-import { join } from './service';
 import CSVReader from 'react-csv-reader'
+import Enumerable from 'linq'
 
 type VM_Row = {
     vm: string;
@@ -28,6 +28,7 @@ type Row = {
 function App() {
     const [listVM, setListVM] = useState([])
     const [listPatchPolicy, setListPatchPolicy] = useState([])
+    const [listResultFuncStr, setListResultFuncStr] = useState("")
     const [data, setData] = useState([])
 
     const columns = useMemo(
@@ -61,20 +62,57 @@ function App() {
     const onVM_Upload = (data, fileInfo, originalFile) => {
         const newListVM = data.slice(1).map(item => ({ vm: item[0], cve: item[1] }))
         setListVM(newListVM)
-        const newData = join(newListVM, listPatchPolicy)
-        setData(newData)
+        if (listResultFuncStr) {
+            const func = new Function('Enumerable', 'VM', 'patch_policies', listResultFuncStr);
+            // const newData = join(newListVM, listPatchPolicy)
+            const newData = func(Enumerable, newListVM, listPatchPolicy)
+            setData(newData)
+        }
     }
     const onPatchPolicyUpload = (data, fileInfo, originalFile) => {
-        let newListPatchPolicy = data.slice(1).map(item => ({ application: item[0], patchPolicy: item[1] }))
+        const newListPatchPolicy = data.slice(1).map(item => ({ application: item[0], patchPolicy: item[1] }))
         setListPatchPolicy(newListPatchPolicy)
-        const newData = join(listVM, newListPatchPolicy)
-        setData(newData)
-
+        if (listResultFuncStr) {
+            const func = new Function('Enumerable', 'VM', 'patch_policies', listResultFuncStr);
+            // const newData = join(listVM, newListPatchPolicy)
+            const newData = func(Enumerable, listVM, newListPatchPolicy)
+            setData(newData)
+        }
     }
 
+    const onChangeFuncStr = (e) => {
+        const value = e.target.value
+        if (value) {
+            setListResultFuncStr(value)
+            const func = new Function('Enumerable', 'VM', 'patch_policies', listResultFuncStr);
+            const newData = func(Enumerable, listVM, listPatchPolicy)
+            setData(newData)
+        } else {
+            setListResultFuncStr(value)
+            setData([])
+        }
+    }
+
+    const onLocalFileUpload = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result;
+                setListResultFuncStr(content);
+                const func = new Function('Enumerable', 'VM', 'patch_policies', content);
+                const newData = func(Enumerable, listVM, listPatchPolicy)
+                setData(newData)
+            };
+            reader.readAsText(file);
+        }
+    };
+
     return (<>
+        <input type="file" accept=".js" onChange={onLocalFileUpload} />
+        <textarea value={listResultFuncStr} onChange={onChangeFuncStr}></textarea>
         <CSVReader label="VM" onFileLoaded={onVM_Upload} />
-        <CSVReader label="patch policies" onFileLoaded={onPatchPolicyUpload} />
+        <CSVReader label="patch_policies" onFileLoaded={onPatchPolicyUpload} />
         <MaterialReactTable table={table} />
     </>);
 }
