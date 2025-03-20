@@ -7,7 +7,8 @@ import {
 } from 'material-react-table';
 import CSVReader from 'react-csv-reader'
 import Enumerable from 'linq'
-import {produce} from "immer"
+import { produce } from "immer"
+import { Button } from '@mui/material';
 
 type VM_Row = {
     vm: string;
@@ -89,10 +90,29 @@ function App() {
                     setData(newData)
                 }
                 table.setEditingRow(null); //exit editing mode
-              },
-              onEditingRowCancel: () => {
+            },
+            onEditingRowCancel: () => {
                 //clear any validation errors
-              },
+            },
+            createDisplayMode: 'modal',
+            onCreatingRowSave: ({ table, values }) => {
+                const nextListPatchPolicies = produce(listPatchPolicy, draftList => {
+                    draftList.push(values)
+                })
+                setListPatchPolicy(nextListPatchPolicies);
+                if (listResultFuncStr) {
+                    const func = new Function('Enumerable', 'VM', 'patch_policies', listResultFuncStr);
+                    const newData = func(Enumerable, listVM, nextListPatchPolicies)
+                    setData(newData)
+                }
+                table.setCreatingRow(null);
+            },
+            renderTopToolbarCustomActions: ({ table }) => (
+                <Button
+                    onClick={() => {
+                        table.setCreatingRow(true)
+                    }}>Ajouter une ligne</Button>
+            )
         });
 
     const onVM_Upload = (data, fileInfo, originalFile) => {
