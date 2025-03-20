@@ -7,6 +7,7 @@ import {
 } from 'material-react-table';
 import CSVReader from 'react-csv-reader'
 import Enumerable from 'linq'
+import {produce} from "immer"
 
 type VM_Row = {
     vm: string;
@@ -69,7 +70,30 @@ function App() {
             }], [])
 
     const table = useMaterialReactTable({ columns, data });
-    const tablePatchPolicies = useMaterialReactTable({ columns: columnsPatchPolicies, data: listPatchPolicy });
+    const tablePatchPolicies = useMaterialReactTable(
+        {
+            columns: columnsPatchPolicies,
+            data: listPatchPolicy,
+            enableEditing: true,
+            editDisplayMode: 'row',
+            onEditingRowSave: ({ row, table, values }) => {
+                const index = row.index
+                const nextListPatchPolicies = produce(listPatchPolicy, draftList => {
+                    draftList[index] = values
+                })
+                setListPatchPolicy(nextListPatchPolicies)
+                if (listResultFuncStr) {
+                    const func = new Function('Enumerable', 'VM', 'patch_policies', listResultFuncStr);
+                    // const newData = join(listVM, newListPatchPolicy)
+                    const newData = func(Enumerable, listVM, nextListPatchPolicies)
+                    setData(newData)
+                }
+                table.setEditingRow(null); //exit editing mode
+              },
+              onEditingRowCancel: () => {
+                //clear any validation errors
+              },
+        });
 
     const onVM_Upload = (data, fileInfo, originalFile) => {
         const newListVM = data.slice(1).map(item => ({ vm: item[0], cve: item[1] }))
