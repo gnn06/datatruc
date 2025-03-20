@@ -57,7 +57,19 @@ function App() {
         [],
     );
 
+    const columnsPatchPolicies = useMemo(
+        () => [
+            {
+                accessorKey: 'application',
+                header: 'application'
+            },
+            {
+                accessorKey: 'patchPolicy',
+                header: 'patch policy'
+            }], [])
+
     const table = useMaterialReactTable({ columns, data });
+    const tablePatchPolicies = useMaterialReactTable({ columns: columnsPatchPolicies, data: listPatchPolicy });
 
     const onVM_Upload = (data, fileInfo, originalFile) => {
         const newListVM = data.slice(1).map(item => ({ vm: item[0], cve: item[1] }))
@@ -111,9 +123,10 @@ function App() {
     return (<>
         <input type="file" accept=".js" onChange={onLocalFileUpload} />
         <textarea value={listResultFuncStr} onChange={onChangeFuncStr}></textarea>
+        <MaterialReactTable table={table} />
         <CSVReader label="VM" onFileLoaded={onVM_Upload} />
         <CSVReader label="patch_policies" onFileLoaded={onPatchPolicyUpload} />
-        <MaterialReactTable table={table} />
+        <MaterialReactTable table={tablePatchPolicies} />
     </>);
 }
 export default App
