@@ -59,61 +59,7 @@ function App() {
         [],
     );
 
-    const columnsPatchPolicies = useMemo(
-        () => [
-            {
-                accessorKey: 'application',
-                header: 'application'
-            },
-            {
-                accessorKey: 'patchPolicy',
-                header: 'patch policy'
-            }], [])
-
     const table = useMaterialReactTable({ columns, data });
-    const tablePatchPolicies = useMaterialReactTable(
-        {
-            columns: columnsPatchPolicies,
-            data: listPatchPolicy,
-            enableEditing: true,
-            editDisplayMode: 'row',
-            onEditingRowSave: ({ row, table, values }) => {
-                const index = row.index
-                const nextListPatchPolicies = produce(listPatchPolicy, draftList => {
-                    draftList[index] = values
-                })
-                setListPatchPolicy(nextListPatchPolicies)
-                if (listResultFuncStr) {
-                    const func = new Function('Enumerable', 'VM', 'patch_policies', listResultFuncStr);
-                    // const newData = join(listVM, newListPatchPolicy)
-                    const newData = func(Enumerable, listVM, nextListPatchPolicies)
-                    setData(newData)
-                }
-                table.setEditingRow(null); //exit editing mode
-            },
-            onEditingRowCancel: () => {
-                //clear any validation errors
-            },
-            createDisplayMode: 'modal',
-            onCreatingRowSave: ({ table, values }) => {
-                const nextListPatchPolicies = produce(listPatchPolicy, draftList => {
-                    draftList.push(values)
-                })
-                setListPatchPolicy(nextListPatchPolicies);
-                if (listResultFuncStr) {
-                    const func = new Function('Enumerable', 'VM', 'patch_policies', listResultFuncStr);
-                    const newData = func(Enumerable, listVM, nextListPatchPolicies)
-                    setData(newData)
-                }
-                table.setCreatingRow(null);
-            },
-            renderTopToolbarCustomActions: ({ table }) => (
-                <Button
-                    onClick={() => {
-                        table.setCreatingRow(true)
-                    }}>Ajouter une ligne</Button>
-            )
-        });
 
     const onVM_Upload = (data, fileInfo, originalFile) => {
         const newListVM = data.slice(1).map(item => ({ vm: item[0], cve: item[1] }))
@@ -164,13 +110,66 @@ function App() {
         }
     };
 
+    const onPatchPolicyChange = (list) => {
+        setListPatchPolicy(list)
+        if (listResultFuncStr) {
+            const func = new Function('Enumerable', 'VM', 'patch_policies', listResultFuncStr);
+            const newData = func(Enumerable, listVM, list)
+            setData(newData)
+        }
+    }
+
     return (<>
         <input type="file" accept=".js" onChange={onLocalFileUpload} />
         <textarea value={listResultFuncStr} onChange={onChangeFuncStr}></textarea>
         <MaterialReactTable table={table} />
         <CSVReader label="VM" onFileLoaded={onVM_Upload} />
         <CSVReader label="patch_policies" onFileLoaded={onPatchPolicyUpload} />
-        <MaterialReactTable table={tablePatchPolicies} />
+        <CollectionEditor collection={listPatchPolicy} onCollectionChange={onPatchPolicyChange} />
     </>);
 }
 export default App
+
+function CollectionEditor({ collection, onCollectionChange }) {
+    const columnsPatchPolicies = useMemo(() => [
+        {
+            accessorKey: 'application',
+            header: 'application'
+        },
+        {
+            accessorKey: 'patchPolicy',
+            header: 'patch policy'
+        }], [])
+    const tablePatchPolicies = useMaterialReactTable({
+        columns: columnsPatchPolicies,
+        data: collection,
+        enableEditing: true,
+        editDisplayMode: 'row',
+        onEditingRowSave: ({ row, table, values }) => {
+            const index = row.index
+            const nextListPatchPolicies = produce(collection, draftList => {
+                draftList[index] = values
+            })
+            onCollectionChange(nextListPatchPolicies)
+            table.setEditingRow(null); //exit editing mode
+        },
+        onEditingRowCancel: () => {
+            //clear any validation errors
+        },
+        createDisplayMode: 'modal',
+        onCreatingRowSave: ({ table, values }) => {
+            const nextListPatchPolicies = produce(collection, draftList => {
+                draftList.push(values)
+            })
+            onCollectionChange(nextListPatchPolicies);
+            table.setCreatingRow(null);
+        },
+        renderTopToolbarCustomActions: ({ table }) => (
+            <Button
+                onClick={() => {
+                    table.setCreatingRow(true)
+                }}>Ajouter une ligne</Button>
+        )
+    });
+    return <MaterialReactTable table={tablePatchPolicies} />
+}
