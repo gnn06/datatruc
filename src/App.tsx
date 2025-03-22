@@ -71,15 +71,6 @@ function App() {
             setData(newData)
         }
     }
-    const onPatchPolicyUpload = (data, fileInfo, originalFile) => {
-        setListPatchPolicy(newListPatchPolicy)
-        if (listResultFuncStr) {
-            const func = new Function('Enumerable', 'VM', 'patch_policies', listResultFuncStr);
-            // const newData = join(listVM, newListPatchPolicy)
-            const newData = func(Enumerable, listVM, newListPatchPolicy)
-            setData(newData)
-        }
-    }
 
     const onChangeFuncStr = (e) => {
         const value = e.target.value
@@ -170,14 +161,15 @@ function CollectionEditor({ collection, onCollectionChange }) {
         )
     });
 
-    const onPatchPolicyUpload = (data, fileInfo, originalFile) => {
-        const list = data.slice(1).map(item => ({ application: item[0], patchPolicy: item[1] }))
-        onCollectionChange(list)
+    const onFileUpload = (data, fileInfo, originalFile) => {
+        // receive(header=false) [['application','patch_policy'], ['titane','pas de patch'],...]
+        // send                  [{application:'aze',patchPolicy:'aze'},...], pas de header
+        // receive(header=true)  [{application:'aze',patchPolicy:'aze'},...], pas de header
+        onCollectionChange(data)
     }
-
-    console.log('app render')
+    //console.log('app render')
     return <>
-        <CSVReader label="patch_policies" onFileLoaded={onPatchPolicyUpload} />
+        <CSVReader label="patch_policies" onFileLoaded={onFileUpload} parserOptions={{header: true}}/>
         <MaterialReactTable table={tablePatchPolicies} />
     </>
 }
