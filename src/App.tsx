@@ -72,7 +72,6 @@ function App() {
         }
     }
     const onPatchPolicyUpload = (data, fileInfo, originalFile) => {
-        const newListPatchPolicy = data.slice(1).map(item => ({ application: item[0], patchPolicy: item[1] }))
         setListPatchPolicy(newListPatchPolicy)
         if (listResultFuncStr) {
             const func = new Function('Enumerable', 'VM', 'patch_policies', listResultFuncStr);
@@ -124,7 +123,6 @@ function App() {
         <textarea value={listResultFuncStr} onChange={onChangeFuncStr}></textarea>
         <MaterialReactTable table={table} />
         <CSVReader label="VM" onFileLoaded={onVM_Upload} />
-        <CSVReader label="patch_policies" onFileLoaded={onPatchPolicyUpload} />
         <CollectionEditor collection={listPatchPolicy} onCollectionChange={onPatchPolicyChange} />
     </>);
 }
@@ -171,5 +169,15 @@ function CollectionEditor({ collection, onCollectionChange }) {
                 }}>Ajouter une ligne</Button>
         )
     });
-    return <MaterialReactTable table={tablePatchPolicies} />
+
+    const onPatchPolicyUpload = (data, fileInfo, originalFile) => {
+        const list = data.slice(1).map(item => ({ application: item[0], patchPolicy: item[1] }))
+        onCollectionChange(list)
+    }
+
+    console.log('app render')
+    return <>
+        <CSVReader label="patch_policies" onFileLoaded={onPatchPolicyUpload} />
+        <MaterialReactTable table={tablePatchPolicies} />
+    </>
 }
