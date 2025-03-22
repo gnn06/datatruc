@@ -30,7 +30,7 @@ type Row = {
 };
 
 function App() {
-    const [collections, setCollections] = useState(new Map([['VM', []], ['Patch policies', []]]))
+    const [collections, setCollections] = useState(new Map([['VM', []], ['patch_policies', []]]))
 
     const onCollectionChange = (list, collectionName) => {
         const newCollections = produce(collections, draftCollections => {
@@ -40,28 +40,32 @@ function App() {
     }
 
     return (<>
-        <CollectionFunc listVM={collections.get('VM')} listPatchPolicy={collections.get('Patch policies')} />
+        <CollectionFunc  collections={collections} />
         <CollectionCSV collectionName="VM" collections={collections} onCollectionChange={(list) => onCollectionChange(list, 'VM')} />
-        <CollectionCSV collectionName="Patch policies" collections={collections} onCollectionChange={(list) => onCollectionChange(list, 'Patch policies')} />
+        <CollectionCSV collectionName="patch_policies" collections={collections} onCollectionChange={(list) => onCollectionChange(list, 'patch_policies')} />
     </>);
 }
 export default App
 
-function CollectionFunc({ listVM, listPatchPolicy }) {
+function CollectionFunc({ collections }) {
+
     const [funcStr, setFuncStr] = useState("")
     const data = useMemo(() => {
         if (funcStr) {
             try {
-                const func = new Function('Enumerable', 'VM', 'patch_policies', funcStr);
-                const newData = func(Enumerable, listVM, listPatchPolicy)
+                const parameters = ['Enumerable'].concat(Array.from(collections.keys())).join(',');
+                const values = Array.from(collections.values());
+                const func = new Function(parameters, funcStr);
+                const newData = func(Enumerable, ...values)
                 return newData
             } catch (syntaxError) {
+                console.error(syntaxError)
                 return []
             }
         } else {
             return []
         }
-    }, [listVM, listPatchPolicy, funcStr]);
+    }, [collections, funcStr]);
 
 
     const onChangeFuncStr = (e) => {
