@@ -30,7 +30,7 @@ type Row = {
 };
 
 function App() {
-    const [collections, setCollections] = useState(new Map([['VM', []], ['patch_policies', []]]))
+    const [collections, setCollections] = useState(new Map())
 
     const onCollectionChange = (list, collectionName) => {
         const newCollections = produce(collections, draftCollections => {
@@ -59,7 +59,7 @@ function CollectionFunc({ collections }) {
                 const newData = func(Enumerable, ...values)
                 return newData
             } catch (syntaxError) {
-                console.error(syntaxError)
+                console.error('parsing function ', syntaxError)
                 return []
             }
         } else {
@@ -105,7 +105,7 @@ function CollectionFunc({ collections }) {
 // collection [] or [{application:'aze',...},...]
 function CollectionCSV({ collectionName, collections, onCollectionChange }) {
 
-    const collection = collections.get(collectionName)
+    const collection = useMemo(() => collections.get(collectionName) || [], [collections, collectionName])    
 
     const columnsPatchPolicies = useMemo(() => {
         const headers = collection.length > 0 ? Object.keys(collection[0]) : []
