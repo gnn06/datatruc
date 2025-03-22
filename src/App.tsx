@@ -119,16 +119,14 @@ function App() {
 }
 export default App
 
+// collection [] or [{application:'aze',...},...]
 function CollectionEditor({ collection, onCollectionChange }) {
-    const columnsPatchPolicies = useMemo(() => [
-        {
-            accessorKey: 'application',
-            header: 'application'
-        },
-        {
-            accessorKey: 'patchPolicy',
-            header: 'patch policy'
-        }], [])
+
+    const columnsPatchPolicies = useMemo(() => {
+        const headers = collection.length > 0 ? Object.keys(collection[0]) : []
+        return headers.map(el => ({ accessorKey: el, header: el }))
+    }, [collection])
+
     const tablePatchPolicies = useMaterialReactTable({
         columns: columnsPatchPolicies,
         data: collection,
@@ -162,14 +160,12 @@ function CollectionEditor({ collection, onCollectionChange }) {
     });
 
     const onFileUpload = (data, fileInfo, originalFile) => {
-        // receive(header=false) [['application','patch_policy'], ['titane','pas de patch'],...]
-        // send                  [{application:'aze',patchPolicy:'aze'},...], pas de header
         // receive(header=true)  [{application:'aze',patchPolicy:'aze'},...], pas de header
+        // receive(header=false) [['application','patch_policy'], ['titane','pas de patch'],...]
         onCollectionChange(data)
     }
-    //console.log('app render')
     return <>
-        <CSVReader label="patch_policies" onFileLoaded={onFileUpload} parserOptions={{header: true}}/>
-        <MaterialReactTable table={tablePatchPolicies} />
+        <CSVReader label="patch_policies" onFileLoaded={onFileUpload} parserOptions={{ header: true }} />
+        {collection.length > 0 && <MaterialReactTable table={tablePatchPolicies} />}
     </>
 }
