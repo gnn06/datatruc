@@ -32,24 +32,17 @@ type Row = {
 function App() {
     const [collections, setCollections] = useState(new Map([['VM', []], ['Patch policies', []]]))
 
-    const onVMChange = (list) => {
+    const onCollectionChange = (list, collectionName) => {
         const newCollections = produce(collections, draftCollections => {
-            draftCollections.set('VM', list)
-        })
-        setCollections(newCollections);
-    }
-
-    const onPatchPolicyChange = (list) => {
-        const newCollections = produce(collections, draftCollections => {
-            draftCollections.set('Patch policies', list)
+            draftCollections.set(collectionName, list)
         })
         setCollections(newCollections);
     }
 
     return (<>
         <CollectionFunc listVM={collections.get('VM')} listPatchPolicy={collections.get('Patch policies')} />
-        <CollectionCSV collectionName="VM" collection={collections.get('VM')} onCollectionChange={onVMChange} />
-        <CollectionCSV collectionName="Patch policies" collection={collections.get('Patch policies')} onCollectionChange={onPatchPolicyChange} />
+        <CollectionCSV collectionName="VM" collections={collections} onCollectionChange={(list) => onCollectionChange(list, 'VM')} />
+        <CollectionCSV collectionName="Patch policies" collections={collections} onCollectionChange={(list) => onCollectionChange(list, 'Patch policies')} />
     </>);
 }
 export default App
@@ -106,7 +99,9 @@ function CollectionFunc({ listVM, listPatchPolicy }) {
 }
 
 // collection [] or [{application:'aze',...},...]
-function CollectionCSV({ collectionName, collection, onCollectionChange }) {
+function CollectionCSV({ collectionName, collections, onCollectionChange }) {
+
+    const collection = collections.get(collectionName)
 
     const columnsPatchPolicies = useMemo(() => {
         const headers = collection.length > 0 ? Object.keys(collection[0]) : []
