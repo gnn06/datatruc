@@ -7,8 +7,10 @@ import {
 } from 'material-react-table';
 import CSVReader from 'react-csv-reader'
 import Enumerable from 'linq'
-import { produce } from "immer"
+import { produce, enableMapSet } from "immer"
 import { Button } from '@mui/material';
+
+enableMapSet();
 
 type VM_Row = {
     vm: string;
@@ -28,21 +30,26 @@ type Row = {
 };
 
 function App() {
-    const [listVM, setListVM] = useState([])
-    const [listPatchPolicy, setListPatchPolicy] = useState([])
+    const [collections, setCollections] = useState(new Map([['VM', []], ['Patch policies', []]]))
 
     const onVMChange = (list) => {
-        setListVM(list)
+        const newCollections = produce(collections, draftCollections => {
+            draftCollections.set('VM', list)
+        })
+        setCollections(newCollections);
     }
 
     const onPatchPolicyChange = (list) => {
-        setListPatchPolicy(list)
+        const newCollections = produce(collections, draftCollections => {
+            draftCollections.set('Patch policies', list)
+        })
+        setCollections(newCollections);
     }
 
     return (<>
-        <CollectionFunc listVM={listVM} listPatchPolicy={listPatchPolicy} />
-        <CollectionCSV collectionName="VM" collection={listVM} onCollectionChange={onVMChange} />
-        <CollectionCSV collectionName="Patch policies" collection={listPatchPolicy} onCollectionChange={onPatchPolicyChange} />
+        <CollectionFunc listVM={collections.get('VM')} listPatchPolicy={collections.get('Patch policies')} />
+        <CollectionCSV collectionName="VM" collection={collections.get('VM')} onCollectionChange={onVMChange} />
+        <CollectionCSV collectionName="Patch policies" collection={collections.get('Patch policies')} onCollectionChange={onPatchPolicyChange} />
     </>);
 }
 export default App
@@ -89,7 +96,7 @@ function CollectionFunc({ listVM, listPatchPolicy }) {
         const headers = data.length > 0 ? Object.keys(data[0]) : []
         return headers.map(el => ({ accessorKey: el, header: el }))
     }, [data])
-    
+
     const table = useMaterialReactTable({ columns, data });
     return <>
         <input type="file" accept=".js" onChange={onFuncUpload} />
