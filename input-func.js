@@ -7,6 +7,7 @@ return Enumerable
             return {
                 vm: outer.vm,
                 cve: outer.cve,
+                application: inner?.application ?? '',
                 patchPolicy: inner?.patchPolicy ?? ''
             }
         }).toArray();

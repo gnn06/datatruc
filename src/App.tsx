@@ -30,47 +30,46 @@ type Row = {
 function App() {
     const [listVM, setListVM] = useState([])
     const [listPatchPolicy, setListPatchPolicy] = useState([])
-    const [listResultFuncStr, setListResultFuncStr] = useState("")
-    const [data, setData] = useState([])
 
-    const columns = useMemo(
-        () => [
-            {
-                accessorKey: 'vm', //access nested data with dot notation
-                header: 'vm',
-                size: 150,
-            },
-            {
-                accessorKey: 'cve',
-                header: 'cve',
-                size: 150,
-            },
-            {
-                accessorKey: 'application', //normal accessorKey
-                header: 'application',
-                size: 200,
-            },
-            {
-                accessorKey: 'patchPolicy',
-                header: 'patch policy',
-                size: 150,
-            },
-        ],
-        [],
-    );
+    const onVMChange = (list) => {
+        setListVM(list)
+    }
 
-    const table = useMaterialReactTable({ columns, data });
+    const onPatchPolicyChange = (list) => {
+        setListPatchPolicy(list)
+    }
+
+    return (<>
+        <CollectionFunc listVM={listVM} listPatchPolicy={listPatchPolicy} />
+        <CollectionCSV collectionName="VM" collection={listVM} onCollectionChange={onVMChange} />
+        <CollectionCSV collectionName="Patch policies" collection={listPatchPolicy} onCollectionChange={onPatchPolicyChange} />
+    </>);
+}
+export default App
+
+function CollectionFunc({ listVM, listPatchPolicy }) {
+    const [funcStr, setFuncStr] = useState("")
+    const data = useMemo(() => {
+        if (funcStr) {
+            try {
+                const func = new Function('Enumerable', 'VM', 'patch_policies', funcStr);
+                const newData = func(Enumerable, listVM, listPatchPolicy)
+                return newData
+            } catch (syntaxError) {
+                return []
+            }
+        } else {
+            return []
+        }
+    }, [listVM, listPatchPolicy, funcStr]);
+
 
     const onChangeFuncStr = (e) => {
         const value = e.target.value
         if (value) {
-            setListResultFuncStr(value)
-            const func = new Function('Enumerable', 'VM', 'patch_policies', listResultFuncStr);
-            const newData = func(Enumerable, listVM, listPatchPolicy)
-            setData(newData)
+            setFuncStr(value)
         } else {
-            setListResultFuncStr(value)
-            setData([])
+            setFuncStr(value)
         }
     }
 
@@ -79,46 +78,28 @@ function App() {
         if (file) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                const content = e.target.result;
-                setListResultFuncStr(content);
-                const func = new Function('Enumerable', 'VM', 'patch_policies', content);
-                const newData = func(Enumerable, listVM, listPatchPolicy)
-                setData(newData)
+                const funcStr = e.target.result;
+                setFuncStr(funcStr);
             };
             reader.readAsText(file);
         }
     };
 
-    const onVMChange = (list) => {
-        setListVM(list)
-        if (listResultFuncStr) {
-            const func = new Function('Enumerable', 'VM', 'patch_policies', listResultFuncStr);
-            const newData = func(Enumerable, list, listPatchPolicy)
-            setData(newData)
-        }
-    }
-
-    const onPatchPolicyChange = (list) => {
-        setListPatchPolicy(list)
-        if (listResultFuncStr) {
-            const func = new Function('Enumerable', 'VM', 'patch_policies', listResultFuncStr);
-            const newData = func(Enumerable, listVM, list)
-            setData(newData)
-        }
-    }
-
-    return (<>
+    const columns = useMemo(() => {
+        const headers = data.length > 0 ? Object.keys(data[0]) : []
+        return headers.map(el => ({ accessorKey: el, header: el }))
+    }, [data])
+    
+    const table = useMaterialReactTable({ columns, data });
+    return <>
         <input type="file" accept=".js" onChange={onFuncUpload} />
-        <textarea value={listResultFuncStr} onChange={onChangeFuncStr}></textarea>
+        <textarea value={funcStr} onChange={onChangeFuncStr}></textarea>
         <MaterialReactTable table={table} />
-        <CollectionEditor collectionName="VM" collection={listVM}          onCollectionChange={onVMChange} />
-        <CollectionEditor collectionName="Patch policies" collection={listPatchPolicy} onCollectionChange={onPatchPolicyChange} />
-    </>);
+    </>
 }
-export default App
 
 // collection [] or [{application:'aze',...},...]
-function CollectionEditor({ collectionName, collection, onCollectionChange }) {
+function CollectionCSV({ collectionName, collection, onCollectionChange }) {
 
     const columnsPatchPolicies = useMemo(() => {
         const headers = collection.length > 0 ? Object.keys(collection[0]) : []
