@@ -61,17 +61,6 @@ function App() {
 
     const table = useMaterialReactTable({ columns, data });
 
-    const onVM_Upload = (data, fileInfo, originalFile) => {
-        const newListVM = data.slice(1).map(item => ({ vm: item[0], cve: item[1] }))
-        setListVM(newListVM)
-        if (listResultFuncStr) {
-            const func = new Function('Enumerable', 'VM', 'patch_policies', listResultFuncStr);
-            // const newData = join(newListVM, listPatchPolicy)
-            const newData = func(Enumerable, newListVM, listPatchPolicy)
-            setData(newData)
-        }
-    }
-
     const onChangeFuncStr = (e) => {
         const value = e.target.value
         if (value) {
@@ -85,7 +74,7 @@ function App() {
         }
     }
 
-    const onLocalFileUpload = (event) => {
+    const onFuncUpload = (event) => {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
@@ -100,6 +89,15 @@ function App() {
         }
     };
 
+    const onVMChange = (list) => {
+        setListVM(list)
+        if (listResultFuncStr) {
+            const func = new Function('Enumerable', 'VM', 'patch_policies', listResultFuncStr);
+            const newData = func(Enumerable, list, listPatchPolicy)
+            setData(newData)
+        }
+    }
+
     const onPatchPolicyChange = (list) => {
         setListPatchPolicy(list)
         if (listResultFuncStr) {
@@ -110,17 +108,17 @@ function App() {
     }
 
     return (<>
-        <input type="file" accept=".js" onChange={onLocalFileUpload} />
+        <input type="file" accept=".js" onChange={onFuncUpload} />
         <textarea value={listResultFuncStr} onChange={onChangeFuncStr}></textarea>
         <MaterialReactTable table={table} />
-        <CSVReader label="VM" onFileLoaded={onVM_Upload} />
-        <CollectionEditor collection={listPatchPolicy} onCollectionChange={onPatchPolicyChange} />
+        <CollectionEditor collectionName="VM" collection={listVM}          onCollectionChange={onVMChange} />
+        <CollectionEditor collectionName="Patch policies" collection={listPatchPolicy} onCollectionChange={onPatchPolicyChange} />
     </>);
 }
 export default App
 
 // collection [] or [{application:'aze',...},...]
-function CollectionEditor({ collection, onCollectionChange }) {
+function CollectionEditor({ collectionName, collection, onCollectionChange }) {
 
     const columnsPatchPolicies = useMemo(() => {
         const headers = collection.length > 0 ? Object.keys(collection[0]) : []
@@ -165,7 +163,7 @@ function CollectionEditor({ collection, onCollectionChange }) {
         onCollectionChange(data)
     }
     return <>
-        <CSVReader label="patch_policies" onFileLoaded={onFileUpload} parserOptions={{ header: true }} />
+        <CSVReader label={collectionName} onFileLoaded={onFileUpload} parserOptions={{ header: true }} />
         {collection.length > 0 && <MaterialReactTable table={tablePatchPolicies} />}
     </>
 }
