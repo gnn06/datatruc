@@ -17,6 +17,7 @@
     "@mui/icons-material": "^6.4.7",
     "@mui/material": "^6.4.7",
     "@mui/x-date-pickers": "^7.27.3",
+    "export-to-csv": "^1.4.0",
     "immer": "^10.1.1",
     "linq": "^4.0.3",
     "material-react-table": "^3.2.1",

@@ -9,6 +9,7 @@ import CSVReader from 'react-csv-reader'
 import Enumerable from 'linq'
 import { produce, enableMapSet } from "immer"
 import { Button } from '@mui/material';
+import { mkConfig, generateCsv, download } from 'export-to-csv';
 
 enableMapSet();
 
@@ -40,7 +41,7 @@ function App() {
     }
 
     return (<>
-        <CollectionFunc  collections={collections} />
+        <CollectionFunc collections={collections} />
         <CollectionCSV collectionName="VM" collections={collections} onCollectionChange={(list) => onCollectionChange(list, 'VM')} />
         <CollectionCSV collectionName="patch_policies" collections={collections} onCollectionChange={(list) => onCollectionChange(list, 'patch_policies')} />
     </>);
@@ -105,7 +106,7 @@ function CollectionFunc({ collections }) {
 // collection [] or [{application:'aze',...},...]
 function CollectionCSV({ collectionName, collections, onCollectionChange }) {
 
-    const collection = useMemo(() => collections.get(collectionName) || [], [collections, collectionName])    
+    const collection = useMemo(() => collections.get(collectionName) || [], [collections, collectionName])
 
     const columnsPatchPolicies = useMemo(() => {
         const headers = collection.length > 0 ? Object.keys(collection[0]) : []
@@ -136,12 +137,13 @@ function CollectionCSV({ collectionName, collections, onCollectionChange }) {
             onCollectionChange(nextListPatchPolicies);
             table.setCreatingRow(null);
         },
-        renderTopToolbarCustomActions: ({ table }) => (
+        renderTopToolbarCustomActions: ({ table }) => (<div>
             <Button
                 onClick={() => {
                     table.setCreatingRow(true)
                 }}>Ajouter une ligne</Button>
-        )
+            <Button onClick={handleExportData}>Exporter</Button>
+        </div>)
     });
 
     const onFileUpload = (data, fileInfo, originalFile) => {
@@ -149,6 +151,19 @@ function CollectionCSV({ collectionName, collections, onCollectionChange }) {
         // receive(header=false) [['application','patch_policy'], ['titane','pas de patch'],...]
         onCollectionChange(data)
     }
+
+    const handleExportData = () => {
+        const csvConfig = mkConfig({
+            fieldSeparator: ',',
+            decimalSeparator: '.',
+            useKeysAsHeaders: true,
+            quoteStrings: false,
+            filename: collectionName,
+        });
+        const csv = generateCsv(csvConfig)(collection);
+        download(csvConfig)(csv);
+    };
+
     return <>
         <CSVReader label={collectionName} onFileLoaded={onFileUpload} parserOptions={{ header: true }} />
         {collection.length > 0 && <MaterialReactTable table={tablePatchPolicies} />}
