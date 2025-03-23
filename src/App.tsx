@@ -42,8 +42,8 @@ function App() {
 
     return (<>
         <CollectionFunc collections={collections} />
-        <CollectionCSV collectionName="VM" collections={collections} onCollectionChange={(list) => onCollectionChange(list, 'VM')} />
-        <CollectionCSV collectionName="patch_policies" collections={collections} onCollectionChange={(list) => onCollectionChange(list, 'patch_policies')} />
+        <CollectionCSV collections={collections} onCollectionChange={onCollectionChange} />
+        <CollectionCSV collections={collections} onCollectionChange={onCollectionChange} />
     </>);
 }
 export default App
@@ -104,9 +104,12 @@ function CollectionFunc({ collections }) {
 }
 
 // collection [] or [{application:'aze',...},...]
-function CollectionCSV({ collectionName, collections, onCollectionChange }) {
+function CollectionCSV({ collections, onCollectionChange }) {
+
+    const [collectionName, setCollectionName] = useState("")
 
     const collection = useMemo(() => collections.get(collectionName) || [], [collections, collectionName])
+    console.log(collections)
 
     const columnsPatchPolicies = useMemo(() => {
         const headers = collection.length > 0 ? Object.keys(collection[0]) : []
@@ -123,7 +126,7 @@ function CollectionCSV({ collectionName, collections, onCollectionChange }) {
             const nextListPatchPolicies = produce(collection, draftList => {
                 draftList[index] = values
             })
-            onCollectionChange(nextListPatchPolicies)
+            onCollectionChange(nextListPatchPolicies, collectionName);
             table.setEditingRow(null); //exit editing mode
         },
         onEditingRowCancel: () => {
@@ -134,7 +137,7 @@ function CollectionCSV({ collectionName, collections, onCollectionChange }) {
             const nextListPatchPolicies = produce(collection, draftList => {
                 draftList.push(values)
             })
-            onCollectionChange(nextListPatchPolicies);
+            onCollectionChange(nextListPatchPolicies, collectionName);
             table.setCreatingRow(null);
         },
         renderTopToolbarCustomActions: ({ table }) => (<div>
@@ -149,7 +152,7 @@ function CollectionCSV({ collectionName, collections, onCollectionChange }) {
     const onFileUpload = (data, fileInfo, originalFile) => {
         // receive(header=true)  [{application:'aze',patchPolicy:'aze'},...], pas de header
         // receive(header=false) [['application','patch_policy'], ['titane','pas de patch'],...]
-        onCollectionChange(data)
+        onCollectionChange(data, collectionName)
     }
 
     const handleExportData = () => {
@@ -164,8 +167,15 @@ function CollectionCSV({ collectionName, collections, onCollectionChange }) {
         download(csvConfig)(csv);
     };
 
-    return <>
-        <CSVReader label={collectionName} onFileLoaded={onFileUpload} parserOptions={{ header: true }} />
-        {collection.length > 0 && <MaterialReactTable table={tablePatchPolicies} />}
-    </>
+    const onNameChange = (e) => {
+        const value = e.target.value;
+        setCollectionName(value)
+    }
+
+    return (<div>
+        Collection name : <input type="text" value={collectionName} onChange={onNameChange} disabled={collection.length > 0} />
+        {collectionName && <>
+            <CSVReader onFileLoaded={onFileUpload} parserOptions={{ header: true }} />
+            {collection.length > 0 && <MaterialReactTable table={tablePatchPolicies} />}</>}
+    </div>)
 }
