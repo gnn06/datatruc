@@ -32,6 +32,7 @@ type Row = {
 
 function App() {
     const [collections, setCollections] = useState(new Map())
+    const [collectionName, setCollectionName] = useState("")
 
     const onCollectionChange = (list, collectionName) => {
         const newCollections = produce(collections, draftCollections => {
@@ -40,10 +41,24 @@ function App() {
         setCollections(newCollections);
     }
 
+    const onNameChange = (e) => {
+        const value = e.target.value;
+        setCollectionName(value)
+    }
+
+    const onAddCollection = () => {
+        const newCollections = produce(collections, draftCollections => {
+            draftCollections.set(collectionName, [])
+        })
+        setCollections(newCollections);
+        setCollectionName("")
+    }
+
     return (<>
         <CollectionFunc collections={collections} />
-        <CollectionCSV collections={collections} onCollectionChange={onCollectionChange} />
-        <CollectionCSV collections={collections} onCollectionChange={onCollectionChange} />
+        {Array.from(collections).map(([key, value]) => <CollectionCSV key={key} collectionName={key} collections={collections} onCollectionChange={onCollectionChange} />)}
+        Collection name : <input type="text" value={collectionName} onChange={onNameChange} />
+        <Button onClick={onAddCollection}>Ajouter collection</Button>
     </>);
 }
 export default App
@@ -104,12 +119,9 @@ function CollectionFunc({ collections }) {
 }
 
 // collection [] or [{application:'aze',...},...]
-function CollectionCSV({ collections, onCollectionChange }) {
-
-    const [collectionName, setCollectionName] = useState("")
+function CollectionCSV({ collectionName, collections, onCollectionChange }) {
 
     const collection = useMemo(() => collections.get(collectionName) || [], [collections, collectionName])
-    console.log(collections)
 
     const columnsPatchPolicies = useMemo(() => {
         const headers = collection.length > 0 ? Object.keys(collection[0]) : []
@@ -167,13 +179,8 @@ function CollectionCSV({ collections, onCollectionChange }) {
         download(csvConfig)(csv);
     };
 
-    const onNameChange = (e) => {
-        const value = e.target.value;
-        setCollectionName(value)
-    }
-
     return (<div>
-        Collection name : <input type="text" value={collectionName} onChange={onNameChange} disabled={collection.length > 0} />
+        Collection name : {collectionName}
         {collectionName && <>
             <CSVReader onFileLoaded={onFileUpload} parserOptions={{ header: true }} />
             {collection.length > 0 && <MaterialReactTable table={tablePatchPolicies} />}</>}
