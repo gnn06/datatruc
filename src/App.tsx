@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { produce, enableMapSet } from "immer"
 import { Button } from '@mui/material';
 
-import { CollectionFunc } from './CollectionFunc';
 import { CollectionCSV } from './CollectionCSV';
 
 enableMapSet();
@@ -51,7 +50,6 @@ function App() {
     }
 
     return (<>
-        <CollectionFunc collections={collections} />
         {Array.from(collections).map(([key, value]) => <CollectionCSV key={key} collectionName={key} collections={collections} onCollectionChange={onCollectionChange} />)}
         Collection name : <input type="text" value={collectionName} onChange={onNameChange} />
         <Button onClick={onAddCollection}>Ajouter collection</Button>
