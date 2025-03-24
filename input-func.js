@@ -1,13 +1,12 @@
 return Enumerable
     .from(VM)
     .leftJoin(patch_policies,
-        outer => outer.vm.replace(/([0-9]+p?(.zone.local)?)/g, ''),
-        inner => inner.application,
-        (outer, inner) => {
+        left => left.vm.replace(/([0-9]+p?(.zone.local)?)/g, ''),
+        right => right.application,
+        (left, right) => {
             return {
-                vm: outer.vm,
-                cve: outer.cve,
-                application: inner?.application ?? '',
-                patchPolicy: inner?.patchPolicy ?? ''
+                ...left,
+                application: right?.application ?? '',
+                patchPolicy: right?.patchPolicy ?? ''
             }
         }).toArray();
