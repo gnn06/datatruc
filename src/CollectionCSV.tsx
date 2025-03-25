@@ -10,23 +10,23 @@ import CSVReader from "react-csv-reader";
 export function CollectionCSV({ collectionName, collections, onCollectionChange }) {
 
     const [funcStr, setFuncStr] = useState("");
-    const collection = useMemo(() => collections.get(collectionName) || [], [collections, collectionName])
+    const [rows, setRows] = useState([]);
     const data = useMemo(() => {
             if (funcStr) {
                 try {
-                    const parameters = ['Enumerable'].concat(Array.from(collections.keys())).join(',');
-                    const values = Array.from(collections.values());
-                    const func = new Function(parameters, funcStr);
-                    const newData = func(Enumerable, ...values)
+                    const funcParam = ['Enumerable','rows'].concat(Array.from(collections.keys())).join(',');
+                    const funcArg = Array.from(collections.values());
+                    const func = new Function(funcParam, funcStr);
+                    const newData = func(Enumerable, rows, ...funcArg)
                     return newData
                 } catch (error) {
                     console.error('parsing function ', error)
-                    return collection
+                    return []
                 }
             } else {
-                return collection
+                return rows
             }
-        }, [collections, collection, funcStr]);
+        }, [collections, rows, funcStr]);
 
     const columnsPatchPolicies = useMemo(() => {
         const headers = data.length > 0 ? Object.keys(data[0]) : []
@@ -40,7 +40,7 @@ export function CollectionCSV({ collectionName, collections, onCollectionChange 
         editDisplayMode: 'row',
         onEditingRowSave: ({ row, table, values }) => {
             const index = row.index
-            const nextListPatchPolicies = produce(collection, draftList => {
+            const nextListPatchPolicies = produce(rows, draftList => {
                 draftList[index] = values
             })
             onCollectionChange(nextListPatchPolicies, collectionName);
@@ -51,7 +51,7 @@ export function CollectionCSV({ collectionName, collections, onCollectionChange 
         },
         createDisplayMode: 'modal',
         onCreatingRowSave: ({ table, values }) => {
-            const nextListPatchPolicies = produce(collection, draftList => {
+            const nextListPatchPolicies = produce(rows, draftList => {
                 draftList.push(values)
             })
             onCollectionChange(nextListPatchPolicies, collectionName);
@@ -66,9 +66,10 @@ export function CollectionCSV({ collectionName, collections, onCollectionChange 
         </div>)
     });
 
-    const onFileUpload = (data, fileInfo, originalFile) => {
+    const onCSV_Import = (data, fileInfo, originalFile) => {
         // receive(header=true)  [{application:'aze',patchPolicy:'aze'},...], pas de header
         // receive(header=false) [['application','patch_policy'], ['titane','pas de patch'],...]
+        setRows(data)
         onCollectionChange(data, collectionName)
     }
 
@@ -110,7 +111,7 @@ export function CollectionCSV({ collectionName, collections, onCollectionChange 
         {collectionName && <>
             <input type="file" accept=".js" onChange={onFuncUpload} />
             <textarea value={funcStr} onChange={onChangeFuncStr}></textarea>
-            <CSVReader onFileLoaded={onFileUpload} parserOptions={{ header: true }} />
-            {collection.length > 0 && <MaterialReactTable table={tablePatchPolicies} />}</>}
+            <CSVReader onFileLoaded={onCSV_Import} parserOptions={{ header: true }} />
+            {rows.length > 0 && <MaterialReactTable table={tablePatchPolicies} />}</>}
     </div>)
 }

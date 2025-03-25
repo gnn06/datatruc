@@ -1,5 +1,5 @@
 return Enumerable
-    .from(VM)
+    .from(rows)
     .leftJoin(patch_policies,
         left => left.vm.replace(/([0-9]+p?(.zone.local)?)/g, ''),
         right => right.application,
