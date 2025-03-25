@@ -26,32 +26,27 @@ type Row = {
 };
 
 function App() {
-    const [collections, setCollections] = useState(new Map())
-    const [collectionName, setCollectionName] = useState("")
+    const [collections, setCollections] = useState([])
 
-    const onCollectionChange = (list, collectionName) => {
+    const onCollectionChange = (collection) => {
         const newCollections = produce(collections, draftCollections => {
-            draftCollections.set(collectionName, list)
+            const index = draftCollections.findIndex(item => item.collectionName === collection.collectionName)
+            draftCollections.splice(index, 1)
+            draftCollections.push(collection)
         })
         setCollections(newCollections);
-    }
-
-    const onNameChange = (e) => {
-        const value = e.target.value;
-        setCollectionName(value)
     }
 
     const onAddCollection = () => {
         const newCollections = produce(collections, draftCollections => {
-            draftCollections.set(collectionName, [])
+            draftCollections.push({ collectionName: 'rows', collection: [] })
         })
         setCollections(newCollections);
-        setCollectionName("")
     }
 
     return (<>
-        {Array.from(collections).map(([key, value]) => <CollectionCSV key={key} collectionName={key} collections={collections} onCollectionChange={onCollectionChange} />)}
-        Collection name : <input type="text" value={collectionName} onChange={onNameChange} />
+        
+        {Array.from(collections).map((value, index) => <CollectionCSV key={index} collections={collections} onCollectionChange={onCollectionChange} />)}
         <Button onClick={onAddCollection}>Ajouter collection</Button>
     </>);
 }
