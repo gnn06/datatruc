@@ -1,10 +1,12 @@
-import { Button } from "@mui/material";
+import { Box, Button, IconButton, Tooltip } from "@mui/material";
 import { download, generateCsv, mkConfig } from "export-to-csv";
 import { produce } from "immer";
 import Enumerable from "linq";
 import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
 import { useMemo, useState } from "react";
 import CSVReader from "react-csv-reader";
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 // collection [] or [{application:'aze',...},...]
 export function CollectionCSV({ collections, onCollectionChange, id }) {
@@ -45,7 +47,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
                 draftRows[index] = values
             })
             setRows(newRows)
-            onCollectionChange({collection:newRows, collectionName}, id);
+            onCollectionChange({ collection: newRows, collectionName }, id);
             table.setEditingRow(null); //exit editing mode
         },
         onEditingRowCancel: () => {
@@ -57,7 +59,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
                 draftRows.push(values)
             })
             setRows(newRows)
-            onCollectionChange({collection:newRows, collectionName}, id);
+            onCollectionChange({ collection: newRows, collectionName }, id);
             table.setCreatingRow(null);
         },
         renderTopToolbarCustomActions: ({ table }) => (<div>
@@ -65,18 +67,43 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
                 onClick={() => {
                     table.setCreatingRow(true)
                 }}>Ajouter une ligne</Button>
-            <Button onClick={handleExportData}>Exporter</Button>
-        </div>)
+            <Button onClick={onCSV_Export}>Exporter</Button>
+        </div>),
+        renderRowActions: ({ row, table }) => (
+            <Box sx={{ display: 'flex', gap: '1rem' }}>
+                <Tooltip title="Edit">
+                    <IconButton onClick={() => table.setEditingRow(row)}>
+                        <EditIcon />
+                    </IconButton>
+                </Tooltip>
+                <Tooltip title="Delete">
+                    <IconButton color="error" onClick={() => onDeleteRow(row)}>
+                        <DeleteIcon />
+                    </IconButton>
+                </Tooltip>
+            </Box>
+        )
     });
+
+    const onDeleteRow = (row) => {
+        if (window.confirm('Are you sure you want to delete this row?')) {
+            const index = row.index
+            const newRows = produce(rows, draftRows => {
+                draftRows.splice(index, 1)
+            })
+            setRows(newRows)
+            onCollectionChange({ collection: newRows, collectionName }, id);
+        }
+    }
 
     const onCSV_Import = (data, fileInfo, originalFile) => {
         // receive(header=true)  [{application:'aze',patchPolicy:'aze'},...], pas de header
         // receive(header=false) [['application','patch_policy'], ['titane','pas de patch'],...]
         setRows(data)
-        onCollectionChange({collection: data, collectionName}, id)
+        onCollectionChange({ collection: data, collectionName }, id)
     }
 
-    const handleExportData = () => {
+    const onCSV_Export = () => {
         const csvConfig = mkConfig({
             fieldSeparator: ',',
             decimalSeparator: '.',
@@ -88,7 +115,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
         download(csvConfig)(csv);
     };
 
-    const onChangeFuncStr = (e) => {
+    const onFuncStrChange = (e) => {
         const value = e.target.value
         if (value) {
             setFuncStr(value)
@@ -111,14 +138,14 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
 
     const onNameChange = (e) => {
         setCollectionName(e.target.value)
-        onCollectionChange({collection: rows, collectionName: e.target.value}, id)
+        onCollectionChange({ collection: rows, collectionName: e.target.value }, id)
     }
 
     return (<div className="collection">
         <div className="command">
             <div>Collection name : <input type="text" value={collectionName} onChange={onNameChange} /></div>
             <input type="file" accept=".js" onChange={onFuncUpload} />
-            <textarea value={funcStr} onChange={onChangeFuncStr}></textarea>
+            <textarea value={funcStr} onChange={onFuncStrChange}></textarea>
             <CSVReader onFileLoaded={onCSV_Import} parserOptions={{ header: true }} />
         </div>
         {rows.length > 0 && <MaterialReactTable table={tablePatchPolicies} />}
