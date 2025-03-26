@@ -14,6 +14,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@fontsource/roboto": "^5.2.5",
+    "@ihatecode/react-file-picker": "^1.0.2",
     "@mui/icons-material": "^6.4.7",
     "@mui/material": "^6.4.7",
     "@mui/x-date-pickers": "^7.27.3",
@@ -21,6 +22,7 @@
     "immer": "^10.1.1",
     "linq": "^4.0.3",
     "material-react-table": "^3.2.1",
+    "papaparse": "^5.5.2",
     "react": "^19.0.0",
     "react-csv-reader": "^4.0.0",
     "react-dom": "^19.0.0"

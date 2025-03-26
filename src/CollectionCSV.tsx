@@ -4,9 +4,11 @@ import { produce } from "immer";
 import Enumerable from "linq";
 import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
 import { useMemo, useState } from "react";
-import CSVReader from "react-csv-reader";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
+import FilePicker from '@ihatecode/react-file-picker';
+import Papa from 'papaparse';
 
 // collection [] or [{application:'aze',...},...]
 export function CollectionCSV({ collections, onCollectionChange, id }) {
@@ -14,6 +16,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
     const [funcStr, setFuncStr] = useState("");
     const [rows, setRows] = useState([]);
     const [collectionName, setCollectionName] = useState('rows');
+
     const data = useMemo(() => {
         if (funcStr) {
             try {
@@ -62,13 +65,21 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
             onCollectionChange({ collection: newRows, collectionName }, id);
             table.setCreatingRow(null);
         },
-        renderTopToolbarCustomActions: ({ table }) => (<div>
-            <Button
-                onClick={() => {
-                    table.setCreatingRow(true)
-                }}>Ajouter une ligne</Button>
+        renderTopToolbarCustomActions: ({ table }) => (<>
+            <Tooltip title="Ajouter une ligne">
+                <IconButton onClick={() => { table.setCreatingRow(true) }}>
+                    <AddIcon />
+                </IconButton>
+            </Tooltip>
+            <FilePicker
+                multiple={false}
+                accept="text/csv"
+                onChange={(files) => onCSV_Import(files)}
+            >
+                <Button>Importer</Button>
+            </FilePicker>
             <Button onClick={onCSV_Export}>Exporter</Button>
-        </div>),
+        </>),
         renderRowActions: ({ row, table }) => (
             <Box sx={{ display: 'flex', gap: '1rem' }}>
                 <Tooltip title="Edit">
@@ -96,11 +107,18 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
         }
     }
 
-    const onCSV_Import = (data, fileInfo, originalFile) => {
-        // receive(header=true)  [{application:'aze',patchPolicy:'aze'},...], pas de header
-        // receive(header=false) [['application','patch_policy'], ['titane','pas de patch'],...]
-        setRows(data)
-        onCollectionChange({ collection: data, collectionName }, id)
+    const onCSV_Import = (files: FileList | null) => {
+        if (files) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const fileContent = e.target.result;
+                const csvConfig = { header: true };
+                const csvData = Papa.parse(fileContent, csvConfig);
+                setRows(csvData.data)
+                onCollectionChange({ collection: csvData.data, collectionName }, id)
+            };
+            reader.readAsText(files[0]);
+        }
     }
 
     const onCSV_Export = () => {
@@ -146,7 +164,6 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
             <div>Collection name : <input type="text" value={collectionName} onChange={onNameChange} /></div>
             <input type="file" accept=".js" onChange={onFuncUpload} />
             <textarea value={funcStr} onChange={onFuncStrChange}></textarea>
-            <CSVReader onFileLoaded={onCSV_Import} parserOptions={{ header: true }} />
         </div>
         <MaterialReactTable table={tablePatchPolicies} />
     </div>)
