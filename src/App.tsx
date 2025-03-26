@@ -44,10 +44,9 @@ function App() {
         setCollections(newCollections);
     }
 
-    return (<>
-        
+    return (<div className='application' >        
         {Array.from(collections).map((value, index) => <CollectionCSV key={index} collections={collections} onCollectionChange={onCollectionChange} />)}
         <Button onClick={onAddCollection}>Ajouter collection</Button>
-    </>);
+    </div>);
 }
 export default App

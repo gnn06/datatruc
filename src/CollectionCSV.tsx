@@ -114,11 +114,13 @@ export function CollectionCSV({ collections, onCollectionChange }) {
         onCollectionChange({collection: rows, collectionName: e.target.value})
     }
 
-    return (<div>
-        Collection name : <input type="text" value={collectionName} onChange={onNameChange} />
-        <input type="file" accept=".js" onChange={onFuncUpload} />
-        <textarea value={funcStr} onChange={onChangeFuncStr}></textarea>
-        <CSVReader onFileLoaded={onCSV_Import} parserOptions={{ header: true }} />
+    return (<div className="collection">
+        <div className="command">
+            <div>Collection name : <input type="text" value={collectionName} onChange={onNameChange} /></div>
+            <input type="file" accept=".js" onChange={onFuncUpload} />
+            <textarea value={funcStr} onChange={onChangeFuncStr}></textarea>
+            <CSVReader onFileLoaded={onCSV_Import} parserOptions={{ header: true }} />
+        </div>
         {rows.length > 0 && <MaterialReactTable table={tablePatchPolicies} />}
     </div>)
 }

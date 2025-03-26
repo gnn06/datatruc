@@ -40,3 +40,23 @@
 .read-the-docs {
   color: #888;
 }
+
+body {
+  background-color: #eeeeee;
+}
+
+div.application {
+  background: white;
+  padding: 5px;
+}
+
+div.collection {
+  margin-top: 15px;
+}
+
+div.command {
+  box-shadow: 0px 0px 2px rgb(117, 117, 117);
+  margin-bottom: 10px;
+  padding:3px;
+  background-color: #f7f6f6;
+}
