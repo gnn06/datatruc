@@ -111,6 +111,7 @@ export function CollectionCSV({ collections, onCollectionChange }) {
 
     const onNameChange = (e) => {
         setCollectionName(e.target.value)
+        onCollectionChange({collection: rows, collectionName: e.target.value})
     }
 
     return (<div>

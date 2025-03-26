@@ -26,7 +26,7 @@ type Row = {
 };
 
 function App() {
-    const [collections, setCollections] = useState([])
+    const [collections, setCollections] = useState([{collectionName: 'rows', collection:[]}])
 
     const onCollectionChange = (collection) => {
         const newCollections = produce(collections, draftCollections => {
