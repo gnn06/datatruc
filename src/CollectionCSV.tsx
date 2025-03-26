@@ -84,7 +84,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
             quoteStrings: false,
             filename: collectionName,
         });
-        const csv = generateCsv(csvConfig)(collection);
+        const csv = generateCsv(csvConfig)(data);
         download(csvConfig)(csv);
     };
 
