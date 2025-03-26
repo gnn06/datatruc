@@ -148,6 +148,6 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
             <textarea value={funcStr} onChange={onFuncStrChange}></textarea>
             <CSVReader onFileLoaded={onCSV_Import} parserOptions={{ header: true }} />
         </div>
-        {rows.length > 0 && <MaterialReactTable table={tablePatchPolicies} />}
+        <MaterialReactTable table={tablePatchPolicies} />
     </div>)
 }
