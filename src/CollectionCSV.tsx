@@ -7,7 +7,7 @@ import { useMemo, useState } from "react";
 import CSVReader from "react-csv-reader";
 
 // collection [] or [{application:'aze',...},...]
-export function CollectionCSV({ collections, onCollectionChange }) {
+export function CollectionCSV({ collections, onCollectionChange, id }) {
 
     const [funcStr, setFuncStr] = useState("");
     const [rows, setRows] = useState([]);
@@ -45,7 +45,7 @@ export function CollectionCSV({ collections, onCollectionChange }) {
                 draftRows[index] = values
             })
             setRows(newRows)
-            onCollectionChange({collection:newRows, collectionName});
+            onCollectionChange({collection:newRows, collectionName}, id);
             table.setEditingRow(null); //exit editing mode
         },
         onEditingRowCancel: () => {
@@ -57,7 +57,7 @@ export function CollectionCSV({ collections, onCollectionChange }) {
                 draftRows.push(values)
             })
             setRows(newRows)
-            onCollectionChange({collection:newRows, collectionName});
+            onCollectionChange({collection:newRows, collectionName}, id);
             table.setCreatingRow(null);
         },
         renderTopToolbarCustomActions: ({ table }) => (<div>
@@ -73,7 +73,7 @@ export function CollectionCSV({ collections, onCollectionChange }) {
         // receive(header=true)  [{application:'aze',patchPolicy:'aze'},...], pas de header
         // receive(header=false) [['application','patch_policy'], ['titane','pas de patch'],...]
         setRows(data)
-        onCollectionChange({collection: data, collectionName})
+        onCollectionChange({collection: data, collectionName}, id)
     }
 
     const handleExportData = () => {
@@ -111,7 +111,7 @@ export function CollectionCSV({ collections, onCollectionChange }) {
 
     const onNameChange = (e) => {
         setCollectionName(e.target.value)
-        onCollectionChange({collection: rows, collectionName: e.target.value})
+        onCollectionChange({collection: rows, collectionName: e.target.value}, id)
     }
 
     return (<div className="collection">

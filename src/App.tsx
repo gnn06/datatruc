@@ -28,11 +28,9 @@ type Row = {
 function App() {
     const [collections, setCollections] = useState([{collectionName: 'rows', collection:[]}])
 
-    const onCollectionChange = (collection) => {
+    const onCollectionChange = (collection, key) => {
         const newCollections = produce(collections, draftCollections => {
-            const index = draftCollections.findIndex(item => item.collectionName === collection.collectionName)
-            draftCollections.splice(index, 1)
-            draftCollections.push(collection)
+            draftCollections[key] = collection
         })
         setCollections(newCollections);
     }
@@ -45,7 +43,7 @@ function App() {
     }
 
     return (<div className='application' >        
-        {Array.from(collections).map((value, index) => <CollectionCSV key={index} collections={collections} onCollectionChange={onCollectionChange} />)}
+        {Array.from(collections).map((value, index) => <CollectionCSV key={index} id={index} collections={collections} onCollectionChange={onCollectionChange} />)}
         <Button onClick={onAddCollection}>Ajouter collection</Button>
     </div>);
 }
