@@ -9,6 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import FilePicker from '@ihatecode/react-file-picker';
 import Papa from 'papaparse';
+import { Func } from "./Func";
 
 // collection [] or [{application:'aze',...},...]
 export function CollectionCSV({ collections, onCollectionChange, id }) {
@@ -133,26 +134,9 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
         download(csvConfig)(csv);
     };
 
-    const onFuncStrChange = (e) => {
-        const value = e.target.value
-        if (value) {
-            setFuncStr(value)
-        } else {
-            setFuncStr(value)
-        }
+    const onFuncStrChange = (value) => {
+        setFuncStr(value)
     }
-
-    const onFuncUpload = (files) => {
-        const file = files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const funcStr = e.target.result;
-                setFuncStr(funcStr);
-            };
-            reader.readAsText(file);
-        }
-    };
 
     const onNameChange = (e) => {
         setCollectionName(e.target.value)
@@ -162,15 +146,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
     return (<div className="collection">
         <div className="command">
             <div>Collection name : <input type="text" value={collectionName} onChange={onNameChange} /></div>
-            <input type="file" accept=".js" onChange={onFuncUpload} />
-            <FilePicker
-                multiple={false}
-                accept="text/javascript"
-                onChange={(files) => onFuncUpload(files)}
-            >
-                <Button>Charger function</Button>
-            </FilePicker>
-            <textarea value={funcStr} onChange={onFuncStrChange}></textarea>
+            <Func funcBody={funcStr} onFuncBodyChange={onFuncStrChange}/>           
         </div>
         <MaterialReactTable table={tablePatchPolicies} />
     </div>)
