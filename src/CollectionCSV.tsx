@@ -142,8 +142,8 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
         }
     }
 
-    const onFuncUpload = (event) => {
-        const file = event.target.files[0];
+    const onFuncUpload = (files) => {
+        const file = files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -163,6 +163,13 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
         <div className="command">
             <div>Collection name : <input type="text" value={collectionName} onChange={onNameChange} /></div>
             <input type="file" accept=".js" onChange={onFuncUpload} />
+            <FilePicker
+                multiple={false}
+                accept="text/javascript"
+                onChange={(files) => onFuncUpload(files)}
+            >
+                <Button>Charger function</Button>
+            </FilePicker>
             <textarea value={funcStr} onChange={onFuncStrChange}></textarea>
         </div>
         <MaterialReactTable table={tablePatchPolicies} />
