@@ -63,3 +63,10 @@ div.command {
   /* color: black */
   
 }
+
+div.collection-func {
+  display: inline-block;
+  flex-direction: row;
+  display: flex;
+  gap: 5px;
+}

@@ -1,4 +1,4 @@
-import { Box, Button, IconButton, Tooltip } from "@mui/material";
+import { Box, Button, IconButton, Stack, Tooltip } from "@mui/material";
 import { download, generateCsv, mkConfig } from "export-to-csv";
 import { produce } from "immer";
 import Enumerable from "linq";
@@ -80,6 +80,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
                 <Button>Importer</Button>
             </FilePicker>
             <Button onClick={onCSV_Export}>Exporter</Button>
+            <Button onClick={onFuncShow}>Function</Button>
         </>),
         renderRowActions: ({ row, table }) => (
             <Box sx={{ display: 'flex', gap: '1rem' }}>
@@ -143,11 +144,23 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
         onCollectionChange({ collection: rows, collectionName: e.target.value }, id)
     }
 
+    const [funcShow, setFuncShow] = useState(false)
+
+    const onFuncShow = () => {
+        setFuncShow(true);
+    }
+
+    const onFuncClose = () => {
+        setFuncShow(false);
+    }
+
     return (<div className="collection">
         <div className="command">
             <div>Collection name : <input type="text" value={collectionName} onChange={onNameChange} /></div>
-            <Func funcBody={funcStr} onFuncBodyChange={onFuncStrChange}/>           
         </div>
-        <MaterialReactTable table={tablePatchPolicies} />
+        <Stack direction="row" spacing={2} >
+            <MaterialReactTable table={tablePatchPolicies} />
+            {funcShow && <Func funcBody={funcStr} onFuncBodyChange={onFuncStrChange} onClose={onFuncClose} />}
+        </Stack>
     </div>)
 }

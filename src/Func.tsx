@@ -1,7 +1,8 @@
 import FilePicker from '@ihatecode/react-file-picker';
-import { Button } from '@mui/material';
+import { Button, IconButton, Paper, Stack, TextField } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
-export function Func({ funcBody, onFuncBodyChange }) {
+export function Func({ funcBody, onFuncBodyChange, onClose }) {
 
     const onChange = (e) => {
         onFuncBodyChange(e.target.value);
@@ -19,14 +20,22 @@ export function Func({ funcBody, onFuncBodyChange }) {
         }
     };
 
-    return <>
-        <FilePicker
-            multiple={false}
-            accept="text/javascript"
-            onChange={(files) => onUpload(files)}
-        >
-            <Button>Charger function</Button>
-        </FilePicker>
-        <textarea value={funcBody} onChange={onChange}></textarea>
-    </>
+    return <Stack sx={{ height: "100%" }} >
+        <Paper sx={{ p: 1 }}>
+            <Stack direction="row" spacing={1} >
+                <FilePicker
+                    multiple={false}
+                    accept="text/javascript"
+                    onChange={(files) => onUpload(files)}
+                >
+                    <Button>Charger</Button>
+                </FilePicker>
+                <IconButton onClick={onClose}><CloseIcon /></IconButton>
+            </Stack>
+            <TextField slotProps={{ input: { sx: { width: "100%", height: "100%", 
+                fontFamily: "monospace", overflowX: "auto", whiteSpace:"nowrap" } } }} 
+                multiline value={funcBody} onChange={onChange}></TextField>
+        </Paper>
+    </Stack>
+
 }
