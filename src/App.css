@@ -53,6 +53,9 @@ div.application {
 div.collection {
   margin-top: 5px;
   margin-bottom: 15px;
+  padding: 6px;
+  border: rgb(202, 202, 202) solid 2px;
+  border-radius: 7px;
 }
 
 div.command {
