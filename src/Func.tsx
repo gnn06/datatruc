@@ -20,8 +20,8 @@ export function Func({ funcBody, onFuncBodyChange, onClose }) {
         }
     };
 
-    return <Stack sx={{ height: "100%" }} >
-        <Paper sx={{ p: 1 }}>
+    return <Paper >
+        <Stack sx={{ height: "100%" }}>
             <Stack direction="row" spacing={1} >
                 <FilePicker
                     multiple={false}
@@ -32,10 +32,12 @@ export function Func({ funcBody, onFuncBodyChange, onClose }) {
                 </FilePicker>
                 <IconButton onClick={onClose}><CloseIcon /></IconButton>
             </Stack>
-            <TextField slotProps={{ input: { sx: { width: "100%", height: "100%", 
-                fontFamily: "monospace", overflowX: "auto", whiteSpace:"nowrap" } } }} 
-                multiline value={funcBody} onChange={onChange}></TextField>
-        </Paper>
-    </Stack>
+            <textarea value={funcBody} onChange={onChange}
+                style={{ margin: "4px", height: "100%", 
+                whiteSpace: "nowrap", fontFamily: "monospace", resize: 'none' }}
+                ></textarea>
+        </Stack>
+    </Paper>
+
 
 }
