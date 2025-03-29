@@ -25,6 +25,12 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
                 const funcArg = collections.map(item => item.collection);
                 const func = new Function(funcParam, funcStr);
                 const newData = func(Enumerable, rows, ...funcArg)
+                if (newData === undefined) {
+                    return []
+                }
+                if (newData.length > 0 && newData[0] === undefined) {
+                    return []
+                }
                 return newData
             } catch (error) {
                 console.error('parsing function ', error, collections.length)
