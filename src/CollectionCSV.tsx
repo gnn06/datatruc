@@ -1,7 +1,6 @@
 import { Box, Button, IconButton, Stack, Tooltip } from "@mui/material";
 import { download, generateCsv, mkConfig } from "export-to-csv";
 import { produce } from "immer";
-import Enumerable from "linq";
 import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
 import { useMemo, useState } from "react";
 import EditIcon from '@mui/icons-material/Edit';
@@ -10,6 +9,7 @@ import AddIcon from '@mui/icons-material/Add';
 import FilePicker from '@ihatecode/react-file-picker';
 import Papa from 'papaparse';
 import { Func } from "./Func";
+import { getData } from "./compute";
 
 // collection [] or [{application:'aze',...},...]
 export function CollectionCSV({ collections, onCollectionChange, id }) {
@@ -21,17 +21,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
     const data = useMemo(() => {
         if (funcStr) {
             try {
-                const funcParam = ['Enumerable', 'rows'].concat(collections.map(item => item.collectionName)).join(',');
-                const funcArg = collections.map(item => item.collection);
-                const func = new Function(funcParam, funcStr);
-                const newData = func(Enumerable, rows, ...funcArg)
-                if (newData === undefined) {
-                    return []
-                }
-                if (newData.length > 0 && newData[0] === undefined) {
-                    return []
-                }
-                return newData
+                return getData(funcStr, rows, collections);
             } catch (error) {
                 console.error('parsing function ', error, collections.length)
                 return []
@@ -142,7 +132,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
     };
 
     const onFuncStrChange = (value) => {
-        setFuncStr(value)
+        setFuncStr(value);
     }
 
     const onNameChange = (e) => {
