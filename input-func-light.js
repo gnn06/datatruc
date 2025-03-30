@@ -1,4 +1,4 @@
 return Enumerable
     .from(rows)
-    .where(row => row.cve > 500)
+    .select(row => ({...row, patchPolicy: row.patchPolicy + ' qsd'}))
     .toArray();
