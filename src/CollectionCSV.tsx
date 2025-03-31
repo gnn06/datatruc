@@ -16,7 +16,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
 
     const [funcStr, setFuncStr] = useState("");
     const [rows, setRows] = useState([]);
-    const [collectionName, setCollectionName] = useState('rows');
+    const [collectionName, setCollectionName] = useState('rows' + id);
 
     const transformedCollections = useMemo(() => transformAllCollections(collections), [collections]);
 

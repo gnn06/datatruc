@@ -2,9 +2,8 @@ import Enumerable from "linq";
 
 export function getData(funcStr, rows, collections) {
     try {
-        const collectionsFiltered = collections.filter(el => el.collectionName !== 'rows');
-        const funcParam = ['Enumerable', 'rows'].concat(collectionsFiltered.map(item => item.collectionName)).join(',');
-        const funcArg = [Enumerable, rows].concat(collectionsFiltered.map(item => item.transformedCollection));
+        const funcParam = ['Enumerable', 'rows'].concat(collections.map(item => item.collectionName)).join(',');
+        const funcArg = [Enumerable, rows].concat(collections.map(item => item.transformedCollection));
         const func = new Function(funcParam, funcStr);
         const newData = func(...funcArg)
         if (newData === undefined) {
