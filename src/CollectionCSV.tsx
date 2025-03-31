@@ -9,7 +9,7 @@ import AddIcon from '@mui/icons-material/Add';
 import FilePicker from '@ihatecode/react-file-picker';
 import Papa from 'papaparse';
 import { Func } from "./Func";
-import { getData } from "./compute";
+import { transformAllCollections, transformCollection } from "./compute";
 
 // collection [] or [{application:'aze',...},...]
 export function CollectionCSV({ collections, onCollectionChange, id }) {
@@ -18,18 +18,11 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
     const [rows, setRows] = useState([]);
     const [collectionName, setCollectionName] = useState('rows');
 
-    const data = useMemo(() => {
-        if (funcStr) {
-            try {
-                return getData(funcStr, rows, collections);
-            } catch (error) {
-                console.error('parsing function ', error, collections.length)
-                return []
-            }
-        } else {
-            return rows
-        }
-    }, [collections, rows, funcStr]);
+    const transformedCollections = useMemo(() => transformAllCollections(collections), [collections]);
+
+    const data = useMemo(() => transformCollection({ collectionName, collection: rows, func: funcStr }, transformedCollections).transformedCollection,
+        [collectionName, rows, funcStr, transformedCollections]
+    )
 
     const columnsPatchPolicies = useMemo(() => {
         const headers = data.length > 0 ? Object.keys(data[0]) : []
@@ -47,7 +40,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
                 draftRows[index] = values
             })
             setRows(newRows)
-            onCollectionChange({ collection: newRows, collectionName }, id);
+            onCollectionChange({ collection: newRows, collectionName, func: funcStr }, id);
             table.setEditingRow(null); //exit editing mode
         },
         onEditingRowCancel: () => {
@@ -59,7 +52,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
                 draftRows.push(values)
             })
             setRows(newRows)
-            onCollectionChange({ collection: newRows, collectionName }, id);
+            onCollectionChange({ collection: newRows, collectionName, func: funcStr }, id);
             table.setCreatingRow(null);
         },
         renderTopToolbarCustomActions: ({ table }) => (<>
@@ -101,7 +94,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
                 draftRows.splice(index, 1)
             })
             setRows(newRows)
-            onCollectionChange({ collection: newRows, collectionName }, id);
+            onCollectionChange({ collection: newRows, collectionName, func: funcStr }, id);
         }
     }
 
@@ -113,7 +106,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
                 const csvConfig = { header: true };
                 const csvData = Papa.parse(fileContent, csvConfig);
                 setRows(csvData.data)
-                onCollectionChange({ collection: csvData.data, collectionName }, id)
+                onCollectionChange({ collection: csvData.data, collectionName, func: funcStr }, id)
             };
             reader.readAsText(files[0]);
         }
@@ -133,11 +126,12 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
 
     const onFuncStrChange = (value) => {
         setFuncStr(value);
+        onCollectionChange({ collection: rows, collectionName: collectionName, func: value }, id)
     }
 
     const onNameChange = (e) => {
         setCollectionName(e.target.value)
-        onCollectionChange({ collection: rows, collectionName: e.target.value }, id)
+        onCollectionChange({ collection: rows, collectionName: e.target.value, func: funcStr }, id)
     }
 
     const [funcShow, setFuncShow] = useState(false)

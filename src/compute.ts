@@ -1,34 +1,44 @@
 import Enumerable from "linq";
 
 export function getData(funcStr, rows, collections) {
-    const funcParam = ['Enumerable', 'rows'].concat(collections.map(item => item.collectionName)).join(',');
-    const funcArg = collections.map(item => item.transformedCollection);
-    const func = new Function(funcParam, funcStr);
-    const newData = func(Enumerable, rows, ...funcArg)
-    if (newData === undefined) {
+    try {
+        const collectionsFiltered = collections.filter(el => el.collectionName !== 'rows');
+        const funcParam = ['Enumerable', 'rows'].concat(collectionsFiltered.map(item => item.collectionName)).join(',');
+        const funcArg = [Enumerable, rows].concat(collectionsFiltered.map(item => item.transformedCollection));
+        const func = new Function(funcParam, funcStr);
+        const newData = func(...funcArg)
+        if (newData === undefined) {
+            return []
+        }
+        if (newData.length > 0 && newData[0] === undefined) {
+            return []
+        }
+        return newData
+    } catch (error) {
+        console.error('parsing function ', error)
         return []
     }
-    if (newData.length > 0 && newData[0] === undefined) {
-        return []
-    }
-    return newData
 }
 
 export function transformCollection(collection, collections) {
     const { func: funcStr, collection: rows } = collection;
-    const newData = getData(funcStr, rows, collections)
-    return { ...collection, transformedCollection: newData };
+    if (funcStr && funcStr !== '') {
+        const newData = getData(funcStr, rows, collections)
+        return { ...collection, transformedCollection: newData };
+    } else {
+        return { ...collection, transformedCollection: rows };
+    }
 }
 
 export function transformAllCollections(collections) {
     const newCollections = [];
-
-    let el = collections.shift();
+    const clone = collections.slice();
+    let el = clone.shift();
     while (el) {
-        const tempCollections = newCollections.concat(collections)
+        const tempCollections = newCollections.concat(clone)
         const newCollection = transformCollection(el, tempCollections);
         newCollections.push(newCollection);
-        el = collections.shift();
+        el = clone.shift();
     }
     return newCollections;
 }
