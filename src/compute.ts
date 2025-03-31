@@ -2,7 +2,7 @@ import Enumerable from "linq";
 
 export function getData(funcStr, rows, collections) {
     const funcParam = ['Enumerable', 'rows'].concat(collections.map(item => item.collectionName)).join(',');
-    const funcArg = collections.map(item => item.collection);
+    const funcArg = collections.map(item => item.transformedCollection);
     const func = new Function(funcParam, funcStr);
     const newData = func(Enumerable, rows, ...funcArg)
     if (newData === undefined) {
@@ -17,7 +17,7 @@ export function getData(funcStr, rows, collections) {
 export function transformCollection(collection, collections) {
     const { func: funcStr, collection: rows } = collection;
     const newData = getData(funcStr, rows, collections)
-    return { ...collection, collection: newData };
+    return { ...collection, transformedCollection: newData };
 }
 
 export function transformAllCollections(collections) {
