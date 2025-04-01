@@ -1,5 +1,9 @@
 import Enumerable from "linq";
 
+export function isTypeValid (collection) {
+    return Object.values(collection[0]).some(el => typeof el !== 'string' && typeof el !== 'number');
+}
+
 export function getData(funcStr, rows, collections) {
     try {
         const funcParam = ['Enumerable', 'rows'].concat(collections.map(item => item.collectionName)).join(',');
@@ -11,6 +15,10 @@ export function getData(funcStr, rows, collections) {
         }
         if (newData.length > 0 && newData[0] === undefined) {
             return []
+        }
+        // Check if all properties are simple types (not object)
+        if (isTypeValid(newData)) {
+            return [];
         }
         return newData
     } catch (error) {

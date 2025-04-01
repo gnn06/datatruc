@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { getData, transformAllCollections, transformCollection } from "./compute";
+import { getData, isTypeValid, transformAllCollections, transformCollection } from "./compute";
 
 test('getData without dependency', () => {
     const givenFuncStr = 'return rows.map(el => el.value * 2)';
@@ -68,4 +68,27 @@ test("transformAllCollections of empty", () => {
     const given = [];
     const result = transformAllCollections(given)
     expect(result).toEqual([])
+})
+
+
+test('getData result wrong structure', () => {
+    const givenFuncStr = 'return [{prop:{subprop:\'val1\', subprop2: \'val2\'}}]';
+    const givenCollection = [12]
+    const givenCollections = [];
+    const result = getData(givenFuncStr, givenCollection, givenCollections);
+    expect(result).toEqual([]);
+});
+
+test('check type', () => {
+    const coll1 = [{
+        "vm": "nickel-jqualif1.zone.local",
+        "toto": 12
+    }]
+    expect(isTypeValid(coll1)).toBeFalsy();
+    const coll2 = [{
+        "vm": "nickel-jqualif1.zone.local",
+        "toto": 12,
+        titi: { toto: 'ae'}
+    }]
+    expect(isTypeValid(coll2)).toBeTruthy()
 })
