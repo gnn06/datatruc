@@ -2,7 +2,7 @@ import './App.css'
 import { useState } from 'react'
 
 import { produce, enableMapSet } from "immer"
-import { Button } from '@mui/material';
+import { Box, Button } from '@mui/material';
 
 import { CollectionCSV } from './CollectionCSV';
 
@@ -26,7 +26,7 @@ type Row = {
 };
 
 function App() {
-    const [collections, setCollections] = useState([{collectionName: 'rows0', collection:[]}])
+    const [collections, setCollections] = useState([{ collectionName: 'rows0', collection: [] }])
 
     const onCollectionChange = (collection, key) => {
         const newCollections = produce(collections, draftCollections => {
@@ -42,9 +42,9 @@ function App() {
         setCollections(newCollections);
     }
 
-    return (<div className='application' >        
+    return (<Box>
         {Array.from(collections).map((value, index) => <CollectionCSV key={index} id={index} collections={collections} onCollectionChange={onCollectionChange} />)}
-        <Button onClick={onAddCollection}>Ajouter collection</Button>
-    </div>);
+        <Button sx={{mt: 1}} onClick={onAddCollection}>Ajouter collection</Button>
+    </Box>);
 }
 export default App

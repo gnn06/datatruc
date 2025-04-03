@@ -1,4 +1,4 @@
-import { Box, Button, IconButton, Stack, Tooltip } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Collapse, IconButton, Stack, Tooltip } from "@mui/material";
 import { download, generateCsv, mkConfig } from "export-to-csv";
 import { produce } from "immer";
 import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FilePicker from '@ihatecode/react-file-picker';
 import Papa from 'papaparse';
 import { Func } from "./Func";
@@ -144,13 +145,15 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
         setFuncShow(false);
     }
 
-    return (<div className="collection">
-        <div className="command">
-            <div>Collection name : <input type="text" value={collectionName} onChange={onNameChange} /></div>
-        </div>
-        <Stack direction="row" spacing={2} >
-            <MaterialReactTable table={tablePatchPolicies} />
-            {funcShow && <Func funcBody={funcStr} onFuncBodyChange={onFuncStrChange} onClose={onFuncClose} />}
-        </Stack>
-    </div>)
+    return (<Accordion defaultExpanded={true} sx={{bgcolor:'rgb(250,250,250)'}}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <div>Collection name : <input type="text" value={collectionName} onChange={onNameChange} onClick={(e) => {e.stopPropagation()}}/></div>
+        </AccordionSummary>
+        <AccordionDetails >
+            <Stack direction="row" spacing={2} >
+                <MaterialReactTable table={tablePatchPolicies} />
+                {funcShow && <Func funcBody={funcStr} onFuncBodyChange={onFuncStrChange} onClose={onFuncClose} />}
+            </Stack>
+        </AccordionDetails>
+    </Accordion>)
 }
