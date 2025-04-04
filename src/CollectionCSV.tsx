@@ -152,7 +152,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
         <AccordionDetails >
             <Stack direction="row" spacing={2} >
                 <MaterialReactTable table={tablePatchPolicies} />
-                {funcShow && <Func funcBody={funcStr} onFuncBodyChange={onFuncStrChange} onClose={onFuncClose} />}
+                {funcShow && <Func text={funcStr} onTextChange={onFuncStrChange} onClose={onFuncClose} />}
             </Stack>
         </AccordionDetails>
     </Accordion>)

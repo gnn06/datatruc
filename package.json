@@ -23,6 +23,7 @@
     "immer": "^10.1.1",
     "linq": "^4.0.3",
     "material-react-table": "^3.2.1",
+    "mime-db": "^1.54.0",
     "papaparse": "^5.5.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
