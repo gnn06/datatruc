@@ -92,7 +92,8 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
     }
 
     const onCSV_Import = () => {
-        setShowRawData(true);
+        setShowRawData(!rawDataShow);
+        if (!rawDataShow) setFuncShow(false);
     }
 
     const onFuncStrChange = (value) => {
@@ -109,7 +110,8 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
     const [rawDataShow, setShowRawData] = useState(false)
 
     const onFuncShow = () => {
-        setFuncShow(true);
+        setFuncShow(!funcShow);
+        if (!funcShow) setShowRawData(false);
     }
 
     const onFuncClose = () => {
