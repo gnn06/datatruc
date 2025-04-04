@@ -136,7 +136,9 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
             <Stack direction="row" spacing={2} >
                 <MaterialReactTable table={tablePatchPolicies} />
 
-                {funcShow && <Text text={funcStr} onTextChange={onFuncStrChange} onClose={onFuncClose} >
+                {funcShow && <Text text={funcStr} onTextChange={onFuncStrChange} onClose={onFuncClose}
+                    mimeType="text/javascript" filenamePrefix="function" collectionName={collectionName}
+                >
                     <p>You can use native javascript and <a href="https://github.com/mihaifm/linq" target='_blank'>linq</a> library.</p>
                     <p>You need to return an array of objects, each of its properties representing a column.</p>
                     <p>The current collection is accessible via <code>rows</code> and other collections are accessible by name. Put collections that are used by others first to resolve dependencies.</p>
@@ -150,7 +152,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
                             (left, right) =&gt; &#123;...&#125;)</code></p></Text>}
 
                 {rawDataShow && <Text text={rawData} onTextChange={onRawDataChange} onClose={onRawDataClose}
-                    mimeType="text/csv" filenamePrefix="data"><></></Text>}
+                    mimeType="text/csv" filenamePrefix="data" collectionName={collectionName}><></></Text>}
             </Stack>
         </AccordionDetails>
     </Accordion>)

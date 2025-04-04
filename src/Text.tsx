@@ -17,7 +17,7 @@ function getExtensionFromMimeType(mimeType) {
 }
 
 
-export function Text({ text, onTextChange, onClose, filenamePrefix = "function", mimeType = "text/javascript", children }) {
+export function Text({ text, onTextChange, onClose, collectionName = "", filenamePrefix = "function", mimeType = "text/javascript", children }) {
 
     const [isMaximize, setMaximize] = useState(false);
     const [showPopper, setShowPopper] = useState(false);
@@ -40,7 +40,7 @@ export function Text({ text, onTextChange, onClose, filenamePrefix = "function",
 
     const onDownload = () => {
         const fileExtension = getExtensionFromMimeType(mimeType);
-        const filename = filenamePrefix + "." + fileExtension;
+        const filename = filenamePrefix + '-' + collectionName + "." + fileExtension;
         const blob = new Blob([text], { type: mimeType });
         saveAs(blob, filename);
     };
