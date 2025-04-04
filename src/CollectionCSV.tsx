@@ -16,6 +16,7 @@ import { transformAllCollections, transformCollection } from "./compute";
 export function CollectionCSV({ collections, onCollectionChange, id }) {
 
     const [funcStr, setFuncStr] = useState("");
+    const [rawData, setRawData] = useState("");
     const [rows, setRows] = useState([]);
     const [collectionName, setCollectionName] = useState('rows' + id);
 
@@ -62,14 +63,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
                     <AddIcon />
                 </IconButton>
             </Tooltip>
-            <FilePicker
-                multiple={false}
-                accept="text/csv"
-                onChange={(files) => onCSV_Import(files)}
-            >
-                <Button>Importer</Button>
-            </FilePicker>
-            <Button onClick={onCSV_Export}>Exporter</Button>
+            <Button onClick={onCSV_Import}>Import / Export</Button>
             <Button onClick={onFuncShow}>Function</Button>
         </>),
         renderRowActions: ({ row, table }) => (
@@ -99,31 +93,9 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
         }
     }
 
-    const onCSV_Import = (files: FileList | null) => {
-        if (files) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const fileContent = e.target.result;
-                const csvConfig = { header: true };
-                const csvData = Papa.parse(fileContent, csvConfig);
-                setRows(csvData.data)
-                onCollectionChange({ collection: csvData.data, collectionName, func: funcStr }, id)
-            };
-            reader.readAsText(files[0]);
-        }
+    const onCSV_Import = () => {
+        setShowRawData(true);
     }
-
-    const onCSV_Export = () => {
-        const csvConfig = mkConfig({
-            fieldSeparator: ',',
-            decimalSeparator: '.',
-            useKeysAsHeaders: true,
-            quoteStrings: false,
-            filename: collectionName,
-        });
-        const csv = generateCsv(csvConfig)(data);
-        download(csvConfig)(csv);
-    };
 
     const onFuncStrChange = (value) => {
         setFuncStr(value);
@@ -136,6 +108,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
     }
 
     const [funcShow, setFuncShow] = useState(false)
+    const [rawDataShow, setShowRawData] = useState(false)
 
     const onFuncShow = () => {
         setFuncShow(true);
@@ -145,6 +118,18 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
         setFuncShow(false);
     }
 
+    const onRawDataClose = () => {
+        setShowRawData(false);
+    }
+
+    const onRawDataChange = (text) => {
+        const csvConfig = { header: true };
+        const csvData = Papa.parse(text, csvConfig);
+        setRows(csvData.data)
+        setRawData(text);
+        onCollectionChange({ collection: csvData.data, collectionName, func: funcStr }, id)
+    }
+
     return (<Accordion defaultExpanded={true} sx={{ bgcolor: 'rgb(250,250,250)' }}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <div>Collection name : <input type="text" value={collectionName} onChange={onNameChange} onClick={(e) => { e.stopPropagation() }} /></div>
@@ -152,6 +137,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
         <AccordionDetails >
             <Stack direction="row" spacing={2} >
                 <MaterialReactTable table={tablePatchPolicies} />
+
                 {funcShow && <Func text={funcStr} onTextChange={onFuncStrChange} onClose={onFuncClose} >
                     <p>You can use native javascript and <a href="https://github.com/mihaifm/linq" target='_blank'>linq</a> library.</p>
                     <p>You need to return an array of objects, each of its properties representing a column.</p>
@@ -163,8 +149,10 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
                             .leftJoin(coll2,<br />
                             left =&gt; left.prop1,<br />
                             right =&gt; right.prop2,<br />
-                            (left, right) =&gt; &#123;...&#125;)</code></p>
-                </Func>}
+                            (left, right) =&gt; &#123;...&#125;)</code></p></Func>}
+
+                {rawDataShow && <Func text={rawData} onTextChange={onRawDataChange} onClose={onRawDataClose}
+                    mimeType="text/csv" filenamePrefix="data"><></></Func>}
             </Stack>
         </AccordionDetails>
     </Accordion>)
