@@ -1,5 +1,4 @@
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Collapse, IconButton, Stack, Tooltip } from "@mui/material";
-import { download, generateCsv, mkConfig } from "export-to-csv";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, IconButton, Stack, Tooltip } from "@mui/material";
 import { produce } from "immer";
 import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
 import { useMemo, useState } from "react";
@@ -7,9 +6,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import FilePicker from '@ihatecode/react-file-picker';
 import Papa from 'papaparse';
-import { Func } from "./Func";
+import { Text } from "./Text";
 import { transformAllCollections, transformCollection } from "./compute";
 
 // collection [] or [{application:'aze',...},...]
@@ -138,7 +136,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
             <Stack direction="row" spacing={2} >
                 <MaterialReactTable table={tablePatchPolicies} />
 
-                {funcShow && <Func text={funcStr} onTextChange={onFuncStrChange} onClose={onFuncClose} >
+                {funcShow && <Text text={funcStr} onTextChange={onFuncStrChange} onClose={onFuncClose} >
                     <p>You can use native javascript and <a href="https://github.com/mihaifm/linq" target='_blank'>linq</a> library.</p>
                     <p>You need to return an array of objects, each of its properties representing a column.</p>
                     <p>The current collection is accessible via <code>rows</code> and other collections are accessible by name. Put collections that are used by others first to resolve dependencies.</p>
@@ -149,10 +147,10 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
                             .leftJoin(coll2,<br />
                             left =&gt; left.prop1,<br />
                             right =&gt; right.prop2,<br />
-                            (left, right) =&gt; &#123;...&#125;)</code></p></Func>}
+                            (left, right) =&gt; &#123;...&#125;)</code></p></Text>}
 
-                {rawDataShow && <Func text={rawData} onTextChange={onRawDataChange} onClose={onRawDataClose}
-                    mimeType="text/csv" filenamePrefix="data"><></></Func>}
+                {rawDataShow && <Text text={rawData} onTextChange={onRawDataChange} onClose={onRawDataClose}
+                    mimeType="text/csv" filenamePrefix="data"><></></Text>}
             </Stack>
         </AccordionDetails>
     </Accordion>)
