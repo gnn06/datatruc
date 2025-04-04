@@ -152,7 +152,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
                             (left, right) =&gt; &#123;...&#125;)</code></p></Text>}
 
                 {rawDataShow && <Text text={rawData} onTextChange={onRawDataChange} onClose={onRawDataClose}
-                    mimeType="text/csv" filenamePrefix="data" collectionName={collectionName}><></></Text>}
+                    mimeType="text/csv" filenamePrefix="data" collectionName={collectionName}></Text>}
             </Stack>
         </AccordionDetails>
     </Accordion>)

@@ -78,7 +78,7 @@ export function Text({ text, onTextChange, onClose, collectionName = "", filenam
                     onChange={(files) => onUpload(files)}><Button>Open</Button>
                 </FilePicker>
                 <Button onClick={onDownload}>Save</Button>
-                <Tooltip title="Show help"><IconButton onClick={handleClick}><HelpIcon /></IconButton></Tooltip>
+                <Tooltip title="Show help"><IconButton onClick={handleClick} disabled={children === undefined}><HelpIcon /></IconButton></Tooltip>
                 <Tooltip title="Full screen"><IconButton onClick={() => setMaximize(true)}><FullscreenIcon /></IconButton></Tooltip>
                 <Tooltip title="Close panel"><IconButton onClick={onClose}><CloseIcon /></IconButton></Tooltip>
             </Stack>
