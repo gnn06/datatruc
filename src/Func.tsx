@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { Children, useRef, useState } from 'react';
 import { Button, IconButton, Paper, Popper, Stack, Tooltip } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
@@ -17,7 +17,7 @@ function getExtensionFromMimeType(mimeType) {
 }
 
 
-export function Func({ text, onTextChange, onClose, filenamePrefix = "function", mimeType = "text/javascript" }) {
+export function Func({ text, onTextChange, onClose, filenamePrefix = "function", mimeType = "text/javascript", children }) {
 
     const [isMaximize, setMaximize] = useState(false);
     const [showPopper, setShowPopper] = useState(false);
@@ -90,17 +90,7 @@ export function Func({ text, onTextChange, onClose, filenamePrefix = "function",
             ></textarea>
             <Popper open={showPopper} anchorEl={anchorRef.current} placement="right-start">
                 <div style={{ padding: 10, background: "white", color: "black", border: "1px solid gray", width: "15em" }}>
-                    <p>You can use native javascript and <a href="https://github.com/mihaifm/linq" target='_blank'>linq</a> library.</p>
-                    <p>You need to return an array of objects, each of its properties representing a column.</p>
-                    <p>The current collection is accessible via <code>rows</code> and other collections are accessible by name. Put collections that are used by others first to resolve dependencies.</p>
-                    <p>Example : <code><br />return Enumerable.from(rows)<br />
-                        .select(row =&gt; (&#123;...row,&nbsp;prop: row.value * 2 &#125;)).toArray();</code></p>
-                    <p>Example de jointure : <br />
-                        <code>return Enumerable.from(coll1)<br />
-                            .leftJoin(coll2,<br />
-                            left =&gt; left.prop1,<br />
-                            right =&gt; right.prop2,<br />
-                            (left, right) =&gt; &#123;...&#125;)</code></p>
+                    {children}
                 </div>
             </Popper>
             {isMaximize && <Tooltip title="Exit full screen"><IconButton sx={{ position: "absolute", top: "0", right: "0", zIndex: 1001, color: "black" }} onClick={() => setMaximize(false)}><FullscreenExitIcon /></IconButton></Tooltip>}

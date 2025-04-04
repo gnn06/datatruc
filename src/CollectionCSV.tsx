@@ -145,14 +145,26 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
         setFuncShow(false);
     }
 
-    return (<Accordion defaultExpanded={true} sx={{bgcolor:'rgb(250,250,250)'}}>
+    return (<Accordion defaultExpanded={true} sx={{ bgcolor: 'rgb(250,250,250)' }}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <div>Collection name : <input type="text" value={collectionName} onChange={onNameChange} onClick={(e) => {e.stopPropagation()}}/></div>
+            <div>Collection name : <input type="text" value={collectionName} onChange={onNameChange} onClick={(e) => { e.stopPropagation() }} /></div>
         </AccordionSummary>
         <AccordionDetails >
             <Stack direction="row" spacing={2} >
                 <MaterialReactTable table={tablePatchPolicies} />
-                {funcShow && <Func text={funcStr} onTextChange={onFuncStrChange} onClose={onFuncClose} />}
+                {funcShow && <Func text={funcStr} onTextChange={onFuncStrChange} onClose={onFuncClose} >
+                    <p>You can use native javascript and <a href="https://github.com/mihaifm/linq" target='_blank'>linq</a> library.</p>
+                    <p>You need to return an array of objects, each of its properties representing a column.</p>
+                    <p>The current collection is accessible via <code>rows</code> and other collections are accessible by name. Put collections that are used by others first to resolve dependencies.</p>
+                    <p>Example : <code><br />return Enumerable.from(rows)<br />
+                        .select(row =&gt; (&#123;...row,&nbsp;prop: row.value * 2 &#125;)).toArray();</code></p>
+                    <p>Example de jointure : <br />
+                        <code>return Enumerable.from(coll1)<br />
+                            .leftJoin(coll2,<br />
+                            left =&gt; left.prop1,<br />
+                            right =&gt; right.prop2,<br />
+                            (left, right) =&gt; &#123;...&#125;)</code></p>
+                </Func>}
             </Stack>
         </AccordionDetails>
     </Accordion>)
