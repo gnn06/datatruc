@@ -20,7 +20,7 @@ export function CollectionCSV({ collections, onCollectionChange, id, collectionN
     
 
     // const [funcStr, setFuncStr] = useState("");
-    const [rawData, setRawData] = useState("");
+    const rawData = Papa.unparse(rows);
     // const [rows, setRows] = useState([]);
     //const [collectionName, setCollectionName] = useState('rows' + id);
 
@@ -132,7 +132,7 @@ export function CollectionCSV({ collections, onCollectionChange, id, collectionN
         const csvConfig = { header: true };
         const csvData = Papa.parse(text, csvConfig);
         // setRows(csvData.data)
-        setRawData(text);
+        // setRawData(text);
         onCollectionChange({ collection: csvData.data, collectionName, func: funcStr }, id)
     }
 
