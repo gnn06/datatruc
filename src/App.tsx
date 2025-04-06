@@ -40,7 +40,7 @@ function App() {
 
     const onAddCollection = () => {
         const newCollections = produce(collections, draftCollections => {
-            draftCollections.push({ collectionName: 'rows' + collections.length - 1, collection: [] })
+            draftCollections.push({ collectionName: 'rows' + collections.length, collection: [] })
         })
         setCollections(newCollections);
     }
