@@ -46,7 +46,7 @@ function App() {
     }
 
     return (<Box>
-        {Array.from(collections).map((value, index) => <CollectionCSV key={index} id={index} collections={collections} onCollectionChange={onCollectionChange} collectionName={collections[index].collectionName}/>)}
+        {Array.from(collections).map((value, index) => <CollectionCSV key={index} id={index} collections={collections} onCollectionChange={onCollectionChange} />)}
         <Button sx={{ mt: 1 }} onClick={onAddCollection}>Ajouter collection</Button>
     </Box>);
 }

@@ -11,10 +11,10 @@ import { Text } from "./Text";
 import { transformAllCollections, transformCollection } from "./compute";
 
 // collection [] or [{application:'aze',...},...]
-export function CollectionCSV({ collections, onCollectionChange, id, collectionName }) {
+export function CollectionCSV({ collections, onCollectionChange, id }) {
 
-    const collectionObject = collections.find(el => el.collectionName === collectionName) || [];
-    const { collection: rows, func: funcStr } = collectionObject;
+    const collectionObject = collections[id];
+    const { collection: rows, func: funcStr, collectionName } = collectionObject;
     console.log("collectioncsv",collectionName,"collectionObject=",collectionObject)
 
     
