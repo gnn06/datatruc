@@ -1,5 +1,6 @@
 import './App.css'
 import { useState } from 'react'
+import createPersistedState from 'use-persisted-state';
 
 import { produce, enableMapSet } from "immer"
 import { Box, Button } from '@mui/material';
@@ -25,8 +26,10 @@ type Row = {
     patch_policy: string;
 };
 
+const usePersitCollectionState = createPersistedState('collections');
+
 function App() {
-    const [collections, setCollections] = useState([{ collectionName: 'rows0', collection: [] }])
+    const [collections, setCollections] = usePersitCollectionState([{ collectionName: 'rows0', collection: [] }])
 
     const onCollectionChange = (collection, key) => {
         const newCollections = produce(collections, draftCollections => {
@@ -43,8 +46,8 @@ function App() {
     }
 
     return (<Box>
-        {Array.from(collections).map((value, index) => <CollectionCSV key={index} id={index} collections={collections} onCollectionChange={onCollectionChange} />)}
-        <Button sx={{mt: 1}} onClick={onAddCollection}>Ajouter collection</Button>
+        {Array.from(collections).map((value, index) => <CollectionCSV key={index} id={index} collections={collections} onCollectionChange={onCollectionChange} collectionName={collections[index].collectionName}/>)}
+        <Button sx={{ mt: 1 }} onClick={onAddCollection}>Ajouter collection</Button>
     </Box>);
 }
 export default App

@@ -11,12 +11,18 @@ import { Text } from "./Text";
 import { transformAllCollections, transformCollection } from "./compute";
 
 // collection [] or [{application:'aze',...},...]
-export function CollectionCSV({ collections, onCollectionChange, id }) {
+export function CollectionCSV({ collections, onCollectionChange, id, collectionName }) {
 
-    const [funcStr, setFuncStr] = useState("");
+    const collectionObject = collections.find(el => el.collectionName === collectionName) || [];
+    const { collection: rows, func: funcStr } = collectionObject;
+    console.log("collectioncsv",collectionName,"collectionObject=",collectionObject)
+
+    
+
+    // const [funcStr, setFuncStr] = useState("");
     const [rawData, setRawData] = useState("");
-    const [rows, setRows] = useState([]);
-    const [collectionName, setCollectionName] = useState('rows' + id);
+    // const [rows, setRows] = useState([]);
+    //const [collectionName, setCollectionName] = useState('rows' + id);
 
     const transformedCollections = useMemo(() => transformAllCollections(collections), [collections]);
 
@@ -39,7 +45,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
             const newRows = produce(rows, draftRows => {
                 draftRows[index] = values
             })
-            setRows(newRows)
+            //setRows(newRows)
             onCollectionChange({ collection: newRows, collectionName, func: funcStr }, id);
             table.setEditingRow(null); //exit editing mode
         },
@@ -51,7 +57,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
             const newRows = produce(rows, draftRows => {
                 draftRows.push(values)
             })
-            setRows(newRows)
+            // setRows(newRows)
             onCollectionChange({ collection: newRows, collectionName, func: funcStr }, id);
             table.setCreatingRow(null);
         },
@@ -86,7 +92,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
             const newRows = produce(rows, draftRows => {
                 draftRows.splice(index, 1)
             })
-            setRows(newRows)
+            // setRows(newRows)
             onCollectionChange({ collection: newRows, collectionName, func: funcStr }, id);
         }
     }
@@ -97,12 +103,12 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
     }
 
     const onFuncStrChange = (value) => {
-        setFuncStr(value);
+        // setFuncStr(value);
         onCollectionChange({ collection: rows, collectionName: collectionName, func: value }, id)
     }
 
     const onNameChange = (e) => {
-        setCollectionName(e.target.value)
+        //setCollectionName(e.target.value)
         onCollectionChange({ collection: rows, collectionName: e.target.value, func: funcStr }, id)
     }
 
@@ -125,7 +131,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
     const onRawDataChange = (text) => {
         const csvConfig = { header: true };
         const csvData = Papa.parse(text, csvConfig);
-        setRows(csvData.data)
+        // setRows(csvData.data)
         setRawData(text);
         onCollectionChange({ collection: csvData.data, collectionName, func: funcStr }, id)
     }

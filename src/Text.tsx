@@ -22,6 +22,7 @@ export function Text({ text, onTextChange, onClose, collectionName = "", filenam
     const [isMaximize, setMaximize] = useState(false);
     const [showPopper, setShowPopper] = useState(false);
 
+    console.log("Text", text, collectionName);
     const onChange = (e) => {
         onTextChange(e.target.value);
     };
