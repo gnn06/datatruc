@@ -11,7 +11,7 @@ import { Text } from "./Text";
 import { transformAllCollections, transformCollection } from "./compute";
 
 // collection [] or [{application:'aze',...},...]
-export function CollectionCSV({ collections, onCollectionChange, id }) {
+export function CollectionCSV({ collections, onCollectionChange, id, onDelete: onDeleteParent }) {
 
     const collectionObject = collections[id];
     const { collection: rows, func: funcStr, collectionName } = collectionObject;
@@ -136,9 +136,18 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
         onCollectionChange({ collection: csvData.data, collectionName, func: funcStr }, id)
     }
 
+    const onDeleteCollection = () => {
+        if (window.confirm('Are you sure you want to delete this collection?')) {
+            onDeleteParent(id);
+        }
+    }
+
     return (<Accordion defaultExpanded={true} sx={{ bgcolor: 'rgb(238,238,238)' }}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <div>Collection name : <input type="text" value={collectionName} onChange={onNameChange} onClick={(e) => { e.stopPropagation() }} /></div>
+            <div>Collection name : <input type="text" value={collectionName} onChange={onNameChange} onClick={(e) => { e.stopPropagation() }} />
+            <Tooltip title="Delete collection"><IconButton onClick={onDeleteCollection}><DeleteIcon/></IconButton></Tooltip>
+            
+            </div>
         </AccordionSummary>
         <AccordionDetails >
             <Stack direction="row" spacing={2} >

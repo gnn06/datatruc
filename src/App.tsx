@@ -45,8 +45,16 @@ function App() {
         setCollections(newCollections);
     }
 
+    const onDeleteCollection = (index:number) => {
+        const newCollections = produce(collections, draftCollections => {
+            draftCollections.splice(index)
+        })
+        setCollections(newCollections);
+    }
+
     return (<Box>
-        {Array.from(collections).map((value, index) => <CollectionCSV key={index} id={index} collections={collections} onCollectionChange={onCollectionChange} />)}
+        {Array.from(collections).map((value, index) => <CollectionCSV key={index} id={index} collections={collections} 
+            onCollectionChange={onCollectionChange} onDelete={onDeleteCollection} />)}
         <Button sx={{ mt: 1 }} onClick={onAddCollection}>Ajouter collection</Button>
     </Box>);
 }
