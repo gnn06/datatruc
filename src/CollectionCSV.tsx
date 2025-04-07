@@ -136,7 +136,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
         onCollectionChange({ collection: csvData.data, collectionName, func: funcStr }, id)
     }
 
-    return (<Accordion defaultExpanded={true} sx={{ bgcolor: 'rgb(250,250,250)' }}>
+    return (<Accordion defaultExpanded={true} sx={{ bgcolor: 'rgb(238,238,238)' }}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <div>Collection name : <input type="text" value={collectionName} onChange={onNameChange} onClick={(e) => { e.stopPropagation() }} /></div>
         </AccordionSummary>
