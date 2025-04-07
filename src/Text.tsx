@@ -18,11 +18,10 @@ function getExtensionFromMimeType(mimeType) {
 
 
 export function Text({ text, onTextChange, onClose, collectionName = "", filenamePrefix = "function", mimeType = "text/javascript", children }) {
-
+    
     const [isMaximize, setMaximize] = useState(false);
     const [showPopper, setShowPopper] = useState(false);
 
-    console.log("Text", text, collectionName);
     const onChange = (e) => {
         onTextChange(e.target.value);
     };

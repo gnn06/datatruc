@@ -15,12 +15,11 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
 
     const collectionObject = collections[id];
     const { collection: rows, func: funcStr, collectionName } = collectionObject;
-    console.log("collectioncsv",collectionName,"collectionObject=",collectionObject)
 
     
 
     // const [funcStr, setFuncStr] = useState("");
-    const rawData = Papa.unparse(rows);
+    const rawData = (collectionObject.rawData || Papa.unparse(rows));
     // const [rows, setRows] = useState([]);
     //const [collectionName, setCollectionName] = useState('rows' + id);
 
@@ -129,11 +128,22 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
     }
 
     const onRawDataChange = (text) => {
+        if (text === '') {
+            onCollectionChange({ collection: [], collectionName, func: funcStr }, id)
+            return;
+        }
         const csvConfig = { header: true };
         const csvData = Papa.parse(text, csvConfig);
+        if (csvData.errors.length > 0) {
+            onCollectionChange({...collectionObject, rawData:text }, id);
+            return;
+        } else {
+            onCollectionChange({ collection: csvData.data, collectionName, func: funcStr }, id);
+            return;
+        }
         // setRows(csvData.data)
         // setRawData(text);
-        onCollectionChange({ collection: csvData.data, collectionName, func: funcStr }, id)
+        
     }
 
     return (<Accordion defaultExpanded={true} sx={{ bgcolor: 'rgb(250,250,250)' }}>
