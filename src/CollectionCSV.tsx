@@ -19,7 +19,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
     
 
     // const [funcStr, setFuncStr] = useState("");
-    const rawData = (collectionObject.rawData || Papa.unparse(rows));
+    const rawData = (collectionObject.rawData || Papa.unparse(rows, collectionObject.meta));
     // const [rows, setRows] = useState([]);
     //const [collectionName, setCollectionName] = useState('rows' + id);
 
@@ -45,7 +45,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
                 draftRows[index] = values
             })
             //setRows(newRows)
-            onCollectionChange({ collection: newRows, collectionName, func: funcStr }, id);
+            onCollectionChange({ ...collectionObject, collection: newRows }, id);
             table.setEditingRow(null); //exit editing mode
         },
         onEditingRowCancel: () => {
@@ -57,7 +57,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
                 draftRows.push(values)
             })
             // setRows(newRows)
-            onCollectionChange({ collection: newRows, collectionName, func: funcStr }, id);
+            onCollectionChange({ ...collectionObject, collection: newRows }, id);
             table.setCreatingRow(null);
         },
         renderTopToolbarCustomActions: ({ table }) => (<>
@@ -92,7 +92,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
                 draftRows.splice(index, 1)
             })
             // setRows(newRows)
-            onCollectionChange({ collection: newRows, collectionName, func: funcStr }, id);
+            onCollectionChange({...collectionObject, collection: newRows }, id);
         }
     }
 
@@ -103,12 +103,12 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
 
     const onFuncStrChange = (value) => {
         // setFuncStr(value);
-        onCollectionChange({ collection: rows, collectionName: collectionName, func: value }, id)
+        onCollectionChange({...collectionObject, func: value }, id)
     }
 
     const onNameChange = (e) => {
         //setCollectionName(e.target.value)
-        onCollectionChange({ collection: rows, collectionName: e.target.value, func: funcStr }, id)
+        onCollectionChange({...collectionObject, collectionName: e.target.value }, id)
     }
 
     const [funcShow, setFuncShow] = useState(false)
@@ -129,7 +129,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
 
     const onRawDataChange = (text) => {
         if (text === '') {
-            onCollectionChange({ collection: [], collectionName, func: funcStr }, id)
+            onCollectionChange({ ...collectionObject, collection: [], rawData: undefined, meta:undefined }, id)
             return;
         }
         const csvConfig = { header: true };
@@ -138,7 +138,7 @@ export function CollectionCSV({ collections, onCollectionChange, id }) {
             onCollectionChange({...collectionObject, rawData:text }, id);
             return;
         } else {
-            onCollectionChange({ collection: csvData.data, collectionName, func: funcStr }, id);
+            onCollectionChange({ ...collectionObject, collection: csvData.data, meta: csvData.meta, rawData: undefined }, id);
             return;
         }
         // setRows(csvData.data)
