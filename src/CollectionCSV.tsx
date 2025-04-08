@@ -6,9 +6,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Papa from 'papaparse';
 import { Text } from "./Text";
 import { transformAllCollections, transformCollection } from "./compute";
+import { TextCSV } from "./TextCSV";
 
 // collection [] or [{application:'aze',...},...]
 export function CollectionCSV({ collections, onCollectionChange, id, onDelete: onDeleteParent }) {
@@ -16,10 +16,7 @@ export function CollectionCSV({ collections, onCollectionChange, id, onDelete: o
     const collectionObject = collections[id];
     const { collection: rows, func: funcStr, collectionName } = collectionObject;
 
-    
-
     // const [funcStr, setFuncStr] = useState("");
-    const rawData = (collectionObject.rawData || Papa.unparse(rows, collectionObject.meta));
     // const [rows, setRows] = useState([]);
     //const [collectionName, setCollectionName] = useState('rows' + id);
 
@@ -92,7 +89,7 @@ export function CollectionCSV({ collections, onCollectionChange, id, onDelete: o
                 draftRows.splice(index, 1)
             })
             // setRows(newRows)
-            onCollectionChange({...collectionObject, collection: newRows }, id);
+            onCollectionChange({ ...collectionObject, collection: newRows }, id);
         }
     }
 
@@ -103,12 +100,12 @@ export function CollectionCSV({ collections, onCollectionChange, id, onDelete: o
 
     const onFuncStrChange = (value) => {
         // setFuncStr(value);
-        onCollectionChange({...collectionObject, func: value }, id)
+        onCollectionChange({ ...collectionObject, func: value }, id)
     }
 
     const onNameChange = (e) => {
         //setCollectionName(e.target.value)
-        onCollectionChange({...collectionObject, collectionName: e.target.value }, id)
+        onCollectionChange({ ...collectionObject, collectionName: e.target.value }, id)
     }
 
     const [funcShow, setFuncShow] = useState(false)
@@ -127,23 +124,8 @@ export function CollectionCSV({ collections, onCollectionChange, id, onDelete: o
         setShowRawData(false);
     }
 
-    const onRawDataChange = (text) => {
-        if (text === '') {
-            onCollectionChange({ ...collectionObject, collection: [], rawData: undefined, meta:undefined }, id)
-            return;
-        }
-        const csvConfig = { header: true };
-        const csvData = Papa.parse(text, csvConfig);
-        if (csvData.errors.length > 0) {
-            onCollectionChange({...collectionObject, rawData:text }, id);
-            return;
-        } else {
-            onCollectionChange({ ...collectionObject, collection: csvData.data, meta: csvData.meta, rawData: undefined }, id);
-            return;
-        }
-        // setRows(csvData.data)
-        // setRawData(text);
-        
+    const onRawDataChange = (collection) => {
+        onCollectionChange(collection, id)
     }
 
     const onDeleteCollection = () => {
@@ -155,8 +137,8 @@ export function CollectionCSV({ collections, onCollectionChange, id, onDelete: o
     return (<Accordion defaultExpanded={true} sx={{ bgcolor: 'rgb(238,238,238)' }}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <div>Collection name : <input type="text" value={collectionName} onChange={onNameChange} onClick={(e) => { e.stopPropagation() }} />
-            <Tooltip title="Delete collection"><IconButton onClick={onDeleteCollection}><DeleteIcon/></IconButton></Tooltip>
-            
+                <Tooltip title="Delete collection"><IconButton onClick={onDeleteCollection}><DeleteIcon /></IconButton></Tooltip>
+
             </div>
         </AccordionSummary>
         <AccordionDetails >
@@ -178,8 +160,7 @@ export function CollectionCSV({ collections, onCollectionChange, id, onDelete: o
                             right =&gt; right.prop2,<br />
                             (left, right) =&gt; &#123;...&#125;)</code></p></Text>}
 
-                {rawDataShow && <Text text={rawData} onTextChange={onRawDataChange} onClose={onRawDataClose}
-                    mimeType="text/csv" filenamePrefix="data" collectionName={collectionName}></Text>}
+                {rawDataShow && <TextCSV collection={collectionObject} onRawDataChange={onRawDataChange} onClose={onRawDataClose}></TextCSV>}
             </Stack>
         </AccordionDetails>
     </Accordion>)
