@@ -1,14 +1,15 @@
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, IconButton, Stack, Tooltip } from "@mui/material";
-import { produce } from "immer";
-import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
 import { useMemo, useState } from "react";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, IconButton, Stack, Tooltip } from "@mui/material";
+import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Text } from "./Text";
+import { produce } from "immer";
+
 import { transformAllCollections, transformCollection } from "./compute";
 import { TextCSV } from "./TextCSV";
+import { TextFunc } from "./TextFunc";
 
 // collection [] or [{application:'aze',...},...]
 export function CollectionCSV({ collections, onCollectionChange, id, onDelete: onDeleteParent }) {
@@ -145,20 +146,7 @@ export function CollectionCSV({ collections, onCollectionChange, id, onDelete: o
             <Stack direction="row" spacing={2} >
                 <MaterialReactTable table={tablePatchPolicies} />
 
-                {funcShow && <Text text={funcStr} onTextChange={onFuncStrChange} onClose={onFuncClose}
-                    mimeType="text/javascript" filenamePrefix="function" collectionName={collectionName}
-                >
-                    <p>You can use native javascript and <a href="https://github.com/mihaifm/linq" target='_blank'>linq</a> library.</p>
-                    <p>You need to return an array of objects, each of its properties representing a column.</p>
-                    <p>The current collection is accessible via <code>rows</code> and other collections are accessible by name. Put collections that are used by others first to resolve dependencies.</p>
-                    <p>Example : <code><br />return Enumerable.from(rows)<br />
-                        .select(row =&gt; (&#123;...row,&nbsp;prop: row.value * 2 &#125;)).toArray();</code></p>
-                    <p>Example de jointure : <br />
-                        <code>return Enumerable.from(coll1)<br />
-                            .leftJoin(coll2,<br />
-                            left =&gt; left.prop1,<br />
-                            right =&gt; right.prop2,<br />
-                            (left, right) =&gt; &#123;...&#125;)</code></p></Text>}
+                {funcShow && <TextFunc collection={collectionObject} onTextChange={onFuncStrChange} onClose={onFuncClose} />}
 
                 {rawDataShow && <TextCSV collection={collectionObject} onRawDataChange={onRawDataChange} onClose={onRawDataClose}></TextCSV>}
             </Stack>

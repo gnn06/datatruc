@@ -4,11 +4,15 @@ export function isTypeValid (collection) {
     return Object.values(collection[0]).some(el => typeof el !== 'string' && typeof el !== 'number');
 }
 
+export function createFunc(funcStr:string, collections:[]) {
+    const funcParam = ['Enumerable', 'rows'].concat(collections.map(item => item.collectionName)).join(',');
+    return new Function(funcParam, funcStr);
+}
+
 export function getData(funcStr, rows, collections) {
     try {
-        const funcParam = ['Enumerable', 'rows'].concat(collections.map(item => item.collectionName)).join(',');
         const funcArg = [Enumerable, rows].concat(collections.map(item => item.transformedCollection));
-        const func = new Function(funcParam, funcStr);
+        const func = createFunc(funcStr, collections);
         const newData = func(...funcArg)
         if (newData === undefined) {
             return []

@@ -16,7 +16,7 @@ function getExtensionFromMimeType(mimeType) {
     return null;
 }
 
-export function Text({ text, errorMsg, onTextChange, onClose, collectionName = "", filenamePrefix = "function", mimeType = "text/javascript", children = undefined }) {
+export function Text({ text, errorMsg, onTextChange, onClose, collectionName = "", filenamePrefix = "function", mimeType = "text/javascript", children }) {
     
     const [isMaximize, setMaximize] = useState(false);
     const [showPopper, setShowPopper] = useState(false);
