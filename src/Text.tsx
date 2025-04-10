@@ -16,7 +16,7 @@ function getExtensionFromMimeType(mimeType) {
     return null;
 }
 
-export function Text({ text, onTextChange, onClose, collectionName = "", filenamePrefix = "function", mimeType = "text/javascript", children = undefined }) {
+export function Text({ text, errorMsg, onTextChange, onClose, collectionName = "", filenamePrefix = "function", mimeType = "text/javascript", children = undefined }) {
     
     const [isMaximize, setMaximize] = useState(false);
     const [showPopper, setShowPopper] = useState(false);
@@ -87,6 +87,7 @@ export function Text({ text, onTextChange, onClose, collectionName = "", filenam
                     whiteSpace: "nowrap", fontFamily: "monospace", resize: 'none'
                 }}
             ></textarea>
+            {errorMsg && <div style={{width:'30em', color:'red'}}>{errorMsg}</div>}
             <Popper open={showPopper} anchorEl={anchorRef.current} placement="right-start">
                 <div style={{ padding: 10, background: "white", color: "black", border: "1px solid gray", width: "15em" }}>
                     {children}
