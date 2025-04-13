@@ -10,6 +10,9 @@ export function createFunc(funcStr:string, collections:[]) {
 }
 
 export function getData(funcStr, rows, collections) {
+    if (funcStr === undefined || funcStr === '') {
+        return rows;
+    }
     try {
         const funcArg = [Enumerable, rows].concat(collections.map(item => item.transformedCollection));
         const func = createFunc(funcStr, collections);
