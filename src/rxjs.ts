@@ -3,6 +3,10 @@ import { BehaviorSubject, combineLatest, map } from 'rxjs';
 import { Collection } from './data.ts';
 import { getData } from './compute.ts';
 
+export function getObsArray(colls:Collection[]) {
+    return colls.map((coll) => getObs(coll));
+}
+
 export function getObs(coll:Collection) {
   const coll$ = {
       name: coll.collectionName,
