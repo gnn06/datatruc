@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest'
 
 import { Collection } from './data.ts';
-import { getObs, getObsArray } from './rxjs.ts';
+import { getObs, getObsArray, CollectionSubject, getDepSubjects } from './rxjs.ts';
 
 test('one collection initialiazed', () => {
-    const given: Collection = { collectionName: 'coll1', collection: [1,2], func: 'return rows.join(",")' };
+    const given: Collection = { collectionName: 'coll1', collection: [1, 2], func: 'return rows.join(",")' };
 
     const obsColl = getObs(given);
 
@@ -37,4 +37,11 @@ test('array of collection', () => {
     obsColl[1].collection$.next([2, 3]);
     obsColl[1].func$.next('return rows.join("/")');
     expect(given[1].transformedCollection).toEqual("2/3")
+});
+
+test('get dependant subjects', () => {
+    const givenDep = ['coll1'];
+    const givenAllSubject$: CollectionSubject[] = [{ name: 'coll1', result$: 'result' }];
+    const result = getDepSubjects(givenDep, givenAllSubject$);
+    expect(result).toEqual(['result']);
 });
