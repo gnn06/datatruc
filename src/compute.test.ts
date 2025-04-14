@@ -1,5 +1,5 @@
-import { expect, test } from 'vitest';
-import { getData, isTypeValid, transformAllCollections, transformCollection } from "./compute";
+import { describe, expect, test } from 'vitest';
+import { getData, getDependencies, isTypeValid, transformAllCollections, transformCollection } from "./compute";
 
 test('getData without dependency', () => {
     const givenFuncStr = 'return rows.map(el => el.value * 2)';
@@ -59,9 +59,9 @@ test("getAllData", () => {
 })
 
 test("transformAllCollections of empty collection", () => {
-    const given = [{collectionName: 'rows', collection: []}];
+    const given = [{ collectionName: 'rows', collection: [] }];
     const result = transformAllCollections(given)
-    expect(result).toEqual([{collectionName: 'rows', collection: [], transformedCollection:[] }])
+    expect(result).toEqual([{ collectionName: 'rows', collection: [], transformedCollection: [] }])
 })
 
 test("transformAllCollections of empty", () => {
@@ -88,7 +88,28 @@ test('check type', () => {
     const coll2 = [{
         "vm": "nickel-jqualif1.zone.local",
         "toto": 12,
-        titi: { toto: 'ae'}
+        titi: { toto: 'ae' }
     }]
     expect(isTypeValid(coll2)).toBeTruthy()
+})
+
+describe('getDependencies', () => {
+    test('1 dep', () => {
+        const givenFunc = 'xxxcoll1yyyy';
+        const givenCollections = ['coll1', 'coll2'];
+
+        const expected = ['coll1'];
+
+        const result = getDependencies(givenFunc, givenCollections);
+        expect(result).toEqual(expected);
+    });
+    test('no dep', () => {
+        const givenFunc = 'xxx yyyy';
+        const givenCollections = ['coll1', 'coll2'];
+
+        const expected = [];
+
+        const result = getDependencies(givenFunc, givenCollections);
+        expect(result).toEqual(expected);
+    })
 })

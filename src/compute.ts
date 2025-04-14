@@ -1,4 +1,5 @@
 import Enumerable from "linq";
+import { expect } from "vitest";
 
 export function isTypeValid (collection) {
     return Object.values(collection[0]).some(el => typeof el !== 'string' && typeof el !== 'number');
@@ -56,3 +57,8 @@ export function transformAllCollections(collections) {
     }
     return newCollections;
 }
+
+export function getDependencies(func, collections) {
+    return collections.filter(coll => func.indexOf(coll) > -1);
+}
+
