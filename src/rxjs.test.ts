@@ -2,6 +2,7 @@ import { expect, test } from 'vitest'
 
 import { Collection } from './data.ts';
 import { getObs, getObsArray, CollectionSubject, getDepSubjects } from './rxjs.ts';
+import { combineLatest, Subject } from 'rxjs';
 
 test('one collection initialiazed', () => {
     const given: Collection = { collectionName: 'coll1', collection: [1, 2], func: 'return rows.join(",")' };
@@ -44,4 +45,24 @@ test('get dependant subjects', () => {
     const givenAllSubject$: CollectionSubject[] = [{ name: 'coll1', result$: 'result' }];
     const result = getDepSubjects(givenDep, givenAllSubject$);
     expect(result).toEqual(['result']);
+});
+
+test('poc', () => {
+    const obs1Rows$ = new Subject();
+    const obs1Func$ = new Subject();
+    const obs1Result$ = combineLatest([obs1Rows$, obs1Func$]);
+    console.log(typeof obs1Rows$, typeof obs1Result$);
+
+    const obs2Rows$ = new Subject();
+    const obs2Func$ = new Subject();
+    const obs2Result$ = combineLatest([obs2Rows$, obs2Func$, obs1Result$]);
+
+    obs2Result$.subscribe(console.log)
+    
+    obs1Rows$.next(1);
+    obs1Func$.next(2);
+    
+    obs2Rows$.next(3);
+    obs2Func$.next(4);
+
 });
