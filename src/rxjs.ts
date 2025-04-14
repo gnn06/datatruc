@@ -2,10 +2,7 @@ import { BehaviorSubject, combineLatest, map } from 'rxjs';
 
 import { Collection } from './data.ts';
 import { getData, getDependencies } from './compute.ts';
-
-export function getObsArray(colls: Collection[]) {
-    return colls.map((coll) => getObs(coll));
-}
+import { Collections as rows } from '@mui/icons-material';
 
 export interface CollectionSubject {
     name: string,
@@ -14,7 +11,18 @@ export interface CollectionSubject {
     result$: BehaviorSubject<any[]>
 };
 
-export function getObs(coll: Collection): collectionSubject {
+export function getObsNew(coll: Collection): CollectionSubject {
+    const coll$ = {
+        name: coll.collectionName,
+        collection$: new BehaviorSubject(coll.collection),
+        func$: new BehaviorSubject(coll.func),
+        result$: new BehaviorSubject([]),
+        collection: coll
+    };
+    return coll$;
+}
+
+export function getObs(coll: Collection): CollectionSubject {
     const coll$ = {
         name: coll.collectionName,
         collection$: new BehaviorSubject(coll.collection),
@@ -32,10 +40,30 @@ export function getObs(coll: Collection): collectionSubject {
     return coll$;
 }
 
-export function getDepSubjects(deps:string[], allSubjects$:CollectionSubject[]) {
+export function getAllObs(colls: Collection[]): CollectionSubject[] {
+    return colls.map((coll) => getObs(coll));
+}
+
+export function getAllObsWithDep(colls: Collection[]): CollectionSubject[] {
+    const obs$ = colls.map(el => getObsNew(el));
+    for(const el of obs$) {
+        const dependencies = getDependencies(el.collection.func, colls.map(el => el.collectionName));
+        console.log('dependencies of ', el.collection.collectionName, ' ', dependencies)
+        const dependencies$ = getDepSubjects(dependencies, obs$);
+        el.result$ = combineLatest([el.collection$, el.func$].concat(dependencies$))
+            .pipe(map(([rows, func, foo]) => {
+                return getData(func, rows, colls)
+            }))
+            .subscribe((value) => {
+                el.collection.transformedCollection = value;
+            })
+    }
+    return obs$;
+}
+
+export function getDepSubjects(deps: string[], allSubjects$: CollectionSubject[]) {
     return deps.map(dep => {
         const subject = allSubjects$.find(el => el.name === dep);
         return subject?.result$;
     })
-
 }

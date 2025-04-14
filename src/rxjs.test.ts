@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import { Collection } from './data.ts';
-import { getObs, getObsArray, CollectionSubject, getDepSubjects } from './rxjs.ts';
+import { getObs, getAllObs, CollectionSubject, getDepSubjects, getAllObsWithDep } from './rxjs.ts';
 import { combineLatest, Subject } from 'rxjs';
 
 test('one collection initialiazed', () => {
@@ -29,7 +29,7 @@ test('array of collection', () => {
         { collectionName: 'coll1', collection: [], func: '' },
         { collectionName: 'coll2', collection: [], func: '' }
     ];
-    const obsColl = getObsArray(given);
+    const obsColl = getAllObs(given);
 
     obsColl[0].collection$.next([1, 2]);
     obsColl[0].func$.next('return rows.join(",")');
@@ -65,4 +65,23 @@ test('poc', () => {
     obs2Rows$.next(3);
     obs2Func$.next(4);
 
+});
+
+test('getAllObsWithDep', () => {
+    const given: Collection[] = [
+        { collectionName: 'coll1', collection: [1,2], func: 'return rows.join(",")' },
+        { collectionName: 'coll2', collection: [2,3], func: 'return rows.join("/") + coll1' }
+    ];
+    const result$ = getAllObsWithDep(given);
+
+    // result$[0].collection$.next([1,2]);
+    // result$[0].func$.next('return rows.join(",")');
+    // result$[0].result$.subscribe(console.log)
+
+    // result$[1].collection$.next([2,3])
+    // result$[1].func$.next('return rows.join("/") + coll1')
+    // result$[1].result$.subscribe(console.log)
+    console.log(given)
+    result$[0].collection$.next([10,20]);
+    console.log(given)
 });
