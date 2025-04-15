@@ -42,7 +42,7 @@ test('array of collection', () => {
 
 test('get dependant subjects', () => {
     const givenDep = ['coll1'];
-    const givenAllSubject$: CollectionSubject[] = [{ name: 'coll1', result$: 'result' }];
+    const givenAllSubject$: CollectionSubject[] = [{ collection: { collectionName: 'coll1'}, result$: 'result' }];
     const result = getDepSubjects(givenDep, givenAllSubject$);
     expect(result).toEqual(['result']);
 });
@@ -51,20 +51,18 @@ test('poc', () => {
     const obs1Rows$ = new Subject();
     const obs1Func$ = new Subject();
     const obs1Result$ = combineLatest([obs1Rows$, obs1Func$]);
-    console.log(typeof obs1Rows$, typeof obs1Result$);
 
     const obs2Rows$ = new Subject();
     const obs2Func$ = new Subject();
     const obs2Result$ = combineLatest([obs2Rows$, obs2Func$, obs1Result$]);
 
-    obs2Result$.subscribe(console.log)
-    
     obs1Rows$.next(1);
     obs1Func$.next(2);
     
     obs2Rows$.next(3);
     obs2Func$.next(4);
 
+    obs2Result$.subscribe((value) => expect(value).toEqual([3,4, [1, 2]]));
 });
 
 test('getAllObsWithDep', () => {
@@ -81,7 +79,8 @@ test('getAllObsWithDep', () => {
     // result$[1].collection$.next([2,3])
     // result$[1].func$.next('return rows.join("/") + coll1')
     // result$[1].result$.subscribe(console.log)
-    console.log(given)
+    expect(given[1].transformedCollection).toEqual("2/31,2")
     result$[0].collection$.next([10,20]);
-    console.log(given)
+    expect(given[1].transformedCollection).toEqual("2/310,20")
+    // console.log(given)
 });
