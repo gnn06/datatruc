@@ -2,19 +2,21 @@ import { useState } from "react";
 
 import { Text } from "./Text";
 import { createFunc } from "./compute";
+import { useObservable } from "./react-rxjs";
 
-export function TextFunc({ collectionName, func, onTextChange, onClose }) {
+export function TextFunc({ collectionName, funcObs, onClose }) {
     
-    const [funcStr, setFuncStr] = useState(func);
     const [errorMsg, setErrorMsg] = useState("");
 
+    const funcStr = useObservable(funcObs, "");
     
     const onInnerTextChange = (text: string) => {
-        setFuncStr(text);
+        // setFuncStr(text);
+        funcObs.next(text);
         try {
             createFunc(text, []);
-            setErrorMsg("");
-            onTextChange(text);
+            setErrorMsg("");            
+            // onTextChange(text);
         } catch (error) {
             setErrorMsg(error.message);            
         }

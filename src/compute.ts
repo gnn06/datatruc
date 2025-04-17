@@ -59,6 +59,7 @@ export function transformAllCollections(collections) {
 }
 
 export function getDependencies(func, collections) {
+    if (func === undefined) return [];
     return collections.filter(coll => func.indexOf(coll) > -1);
 }
 

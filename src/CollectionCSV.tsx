@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, IconButton, Stack, Tooltip } from "@mui/material";
 import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
 import EditIcon from '@mui/icons-material/Edit';
@@ -10,22 +10,27 @@ import { produce } from "immer";
 import { transformAllCollections, transformCollection } from "./compute";
 import { TextCSV } from "./TextCSV";
 import { TextFunc } from "./TextFunc";
+import { CollectionSubject } from "./rxjs";
+import { useObservable } from "./react-rxjs";
 
 // collection [] or [{application:'aze',...},...]
-export function CollectionCSV({ collections, onCollectionChange, id, onDelete: onDeleteParent }) {
+export function CollectionCSV({ collections, collectionsObs, onCollectionChange, id, onDelete: onDeleteParent }) {
 
     const collectionObject = collections[id];
+    const currentCollection$:CollectionSubject = collectionsObs[id];
     const { collection: rows, func: funcStr, collectionName } = collectionObject;
 
     // const [funcStr, setFuncStr] = useState("");
     // const [rows, setRows] = useState([]);
     //const [collectionName, setCollectionName] = useState('rows' + id);
 
-    const transformedCollections = useMemo(() => transformAllCollections(collections), [collections]);
+    // const transformedCollections = useMemo(() => transformAllCollections(collections), [collections]);
 
-    const data = useMemo(() => transformCollection({ collectionName, collection: rows, func: funcStr }, transformedCollections).transformedCollection,
-        [collectionName, rows, funcStr, transformedCollections]
-    )
+    // const data = useMemo(() => transformCollection({ collectionName, collection: rows, func: funcStr }, transformedCollections).transformedCollection,
+    //     [collectionName, rows, funcStr, transformedCollections]
+    // )
+
+    const data = useObservable(currentCollection$.result$, []);
 
     const columnsPatchPolicies = useMemo(() => {
         const headers = data.length > 0 ? Object.keys(data[0]) : []
@@ -99,11 +104,6 @@ export function CollectionCSV({ collections, onCollectionChange, id, onDelete: o
         if (!rawDataShow) setFuncShow(false);
     }
 
-    const onFuncStrChange = (value) => {
-        // setFuncStr(value);
-        onCollectionChange({ ...collectionObject, func: value }, id)
-    }
-
     const onNameChange = (e) => {
         //setCollectionName(e.target.value)
         onCollectionChange({ ...collectionObject, collectionName: e.target.value }, id)
@@ -125,10 +125,6 @@ export function CollectionCSV({ collections, onCollectionChange, id, onDelete: o
         setShowRawData(false);
     }
 
-    const onRawDataChange = (newCollection:any[]) => {
-        onCollectionChange({...collectionObject, collection: newCollection}, id)
-    }
-
     const onDeleteCollection = () => {
         if (window.confirm('Are you sure you want to delete this collection?')) {
             onDeleteParent(id);
@@ -146,9 +142,9 @@ export function CollectionCSV({ collections, onCollectionChange, id, onDelete: o
             <Stack direction="row" spacing={2} >
                 <MaterialReactTable table={tablePatchPolicies} />
 
-                {funcShow && <TextFunc collectionName={collectionObject.collectionName} func={collectionObject.func} onTextChange={onFuncStrChange} onClose={onFuncClose} />}
+                {funcShow && <TextFunc collectionName={collectionObject.collectionName} funcObs={currentCollection$.func$} onClose={onFuncClose} />}
 
-                {rawDataShow && <TextCSV collectionName={collectionObject.collectionName} collection={collectionObject.collection} onCollectionChange={onRawDataChange} onClose={onRawDataClose}></TextCSV>}
+                {rawDataShow && <TextCSV collectionName={collectionObject.collectionName} collectionObs={currentCollection$.collection$} onClose={onRawDataClose}></TextCSV>}
             </Stack>
         </AccordionDetails>
     </Accordion>)
