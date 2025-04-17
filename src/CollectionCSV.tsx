@@ -125,8 +125,8 @@ export function CollectionCSV({ collections, onCollectionChange, id, onDelete: o
         setShowRawData(false);
     }
 
-    const onRawDataChange = (collection) => {
-        onCollectionChange(collection, id)
+    const onRawDataChange = (newCollection:any[]) => {
+        onCollectionChange({...collectionObject, collection: newCollection}, id)
     }
 
     const onDeleteCollection = () => {

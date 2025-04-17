@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Papa from 'papaparse';
 import { ParseError } from 'papaparse';
 
@@ -19,18 +19,18 @@ function getMessageError(errors: ParseError[]): string {
 
 export function TextCSV({ collectionName, collection, onCollectionChange, onClose }) {
 
-    const [rawData, setRawData] = useState(getRawDataFromRows(collection));
+    const [rawData, setRawData] = useState([]);
     const [errorMsg, setErrorMsg] = useState("");
 
-    // useEffect(() => {
-    //     const rawData = getRawDataFromRows(collection);
-    //     setRawData(rawData);
-    // }, [collection])
+    useEffect(() => {
+        const rawData = getRawDataFromRows(collection);
+        setRawData(rawData);
+    }, [collection])
 
     const onTextChange = (text: string) => {
         setRawData(text);
         if (text === '') {
-            onCollectionChange({ ...collection, collection: [], rawData: undefined, meta: undefined })
+            onCollectionChange([])
             return;
         }
         const csvConfig = { header: true, skipEmptyLines: true };
@@ -40,7 +40,7 @@ export function TextCSV({ collectionName, collection, onCollectionChange, onClos
             return;
         } else {
             setErrorMsg("");
-            onCollectionChange({ ...collection, collection: csvData.data, meta: csvData.meta, rawData: undefined });
+            onCollectionChange(csvData.data);
             return;
         }
         // setRows(csvData.data)
