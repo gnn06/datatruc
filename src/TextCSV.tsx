@@ -6,10 +6,7 @@ import { Text } from "./Text";
 
 function getRawDataFromRows(collection) {
     if (collection === undefined) return '';
-    const { collection: rows, meta, rawData } = collection;
-    if (rawData) return rawData;
-    if (rows === undefined) return '';
-    return Papa.unparse(rows, meta)
+    return Papa.unparse(collection)
 };
 
 function getMessageError(errors: ParseError[]): string {
@@ -20,12 +17,10 @@ function getMessageError(errors: ParseError[]): string {
     }).join('\n');
 }
 
-export function TextCSV({ collection, onRawDataChange, onClose }) {
+export function TextCSV({ collectionName, collection, onCollectionChange, onClose }) {
 
     const [rawData, setRawData] = useState(getRawDataFromRows(collection));
     const [errorMsg, setErrorMsg] = useState("");
-
-    const { collectionName } = collection;
 
     // useEffect(() => {
     //     const rawData = getRawDataFromRows(collection);
@@ -35,7 +30,7 @@ export function TextCSV({ collection, onRawDataChange, onClose }) {
     const onTextChange = (text: string) => {
         setRawData(text);
         if (text === '') {
-            onRawDataChange({ ...collection, collection: [], rawData: undefined, meta: undefined })
+            onCollectionChange({ ...collection, collection: [], rawData: undefined, meta: undefined })
             return;
         }
         const csvConfig = { header: true, skipEmptyLines: true };
@@ -45,12 +40,14 @@ export function TextCSV({ collection, onRawDataChange, onClose }) {
             return;
         } else {
             setErrorMsg("");
-            onRawDataChange({ ...collection, collection: csvData.data, meta: csvData.meta, rawData: undefined });
+            onCollectionChange({ ...collection, collection: csvData.data, meta: csvData.meta, rawData: undefined });
             return;
         }
         // setRows(csvData.data)
 
     }
+
+    
 
     return <>
         <Text text={rawData} errorMsg={errorMsg} onTextChange={onTextChange} onClose={onClose}

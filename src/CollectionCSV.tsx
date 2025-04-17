@@ -146,9 +146,9 @@ export function CollectionCSV({ collections, onCollectionChange, id, onDelete: o
             <Stack direction="row" spacing={2} >
                 <MaterialReactTable table={tablePatchPolicies} />
 
-                {funcShow && <TextFunc collection={collectionObject} onTextChange={onFuncStrChange} onClose={onFuncClose} />}
+                {funcShow && <TextFunc collectionName={collectionObject.collectionName} func={collectionObject.func} onTextChange={onFuncStrChange} onClose={onFuncClose} />}
 
-                {rawDataShow && <TextCSV collection={collectionObject} onRawDataChange={onRawDataChange} onClose={onRawDataClose}></TextCSV>}
+                {rawDataShow && <TextCSV collectionName={collectionObject.collectionName} collection={collectionObject.collection} onCollectionChange={onRawDataChange} onClose={onRawDataClose}></TextCSV>}
             </Stack>
         </AccordionDetails>
     </Accordion>)

@@ -3,10 +3,8 @@ import { useState } from "react";
 import { Text } from "./Text";
 import { createFunc } from "./compute";
 
-export function TextFunc({ collection, onTextChange, onClose }) {
-
-    const { collectionName, func } = collection;
-
+export function TextFunc({ collectionName, func, onTextChange, onClose }) {
+    
     const [funcStr, setFuncStr] = useState(func);
     const [errorMsg, setErrorMsg] = useState("");
 
