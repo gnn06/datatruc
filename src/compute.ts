@@ -11,11 +11,12 @@ export function createFunc(funcStr:string, collections:[]) {
 }
 
 export function getData(funcStr, rows, collections) {
+    // console.log('getData','collections=',collections)
     if (funcStr === undefined || funcStr === '') {
         return rows;
     }
     try {
-        const funcArg = [Enumerable, rows].concat(collections.map(item => item.transformedCollection));
+        const funcArg = [Enumerable, rows].concat(collections.map(item => item.collection));
         const func = createFunc(funcStr, collections);
         const newData = func(...funcArg)
         if (newData === undefined) {
