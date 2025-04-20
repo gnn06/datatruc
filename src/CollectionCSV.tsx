@@ -58,7 +58,7 @@ export function CollectionCSV({ collections, onCollectionChange, id, onDelete: o
         setShowRawData(false);
     }
 
-    const onRowsChange = (rows: Collection[]) => {
+    const onRowsChange = (rows: unknown[]) => {
         //setRows(rows);
         onCollectionChange({ ...collectionObject, collection: rows }, id)
     };

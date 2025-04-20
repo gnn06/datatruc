@@ -3,12 +3,21 @@ import { useState } from "react";
 import { Text } from "./Text";
 import { createFunc } from "./compute";
 
-export function TextFunc({ collectionName, func, onTextChange, onClose }) {
-    
+interface TextFuncProps {
+    collectionName: string,
+    func: string,
+    onTextChange: (text: string) => void,
+    onClose: () => void
+};
+
+export function TextFunc({ collectionName, func, onTextChange, onClose }
+    : TextFuncProps
+) {
+
     const [funcStr, setFuncStr] = useState(func);
     const [errorMsg, setErrorMsg] = useState("");
 
-    
+
     const onInnerTextChange = (text: string) => {
         setFuncStr(text);
         try {
@@ -16,7 +25,7 @@ export function TextFunc({ collectionName, func, onTextChange, onClose }) {
             setErrorMsg("");
             onTextChange(text);
         } catch (error) {
-            setErrorMsg(error.message);            
+            setErrorMsg(error.message);
         }
     }
 
@@ -34,7 +43,7 @@ export function TextFunc({ collectionName, func, onTextChange, onClose }) {
                     left =&gt; left.prop1,<br />
                     right =&gt; right.prop2,<br />
                     (left, right) =&gt; &#123;...&#125;)</code></p>
-                    </>
+        </>
     </Text>
 
 }

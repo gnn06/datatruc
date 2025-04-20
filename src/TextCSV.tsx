@@ -4,7 +4,7 @@ import { ParseError } from 'papaparse';
 
 import { Text } from "./Text";
 
-function getRawDataFromRows(collection) {
+function getRawDataFromRows(collection:unknown[]) {
     if (collection === undefined) return '';
     return Papa.unparse(collection)
 };
@@ -17,9 +17,16 @@ function getMessageError(errors: ParseError[]): string {
     }).join('\n');
 }
 
-export function TextCSV({ collectionName, collection, onCollectionChange, onClose }) {
+interface TextCSVProps {
+    collectionName: string,
+    collection: unknown[],
+    onCollectionChange: (collection: unknown[]) => void,
+    onClose: () => void
+};
 
-    const [rawData, setRawData] = useState([]);
+export function TextCSV({ collectionName, collection, onCollectionChange, onClose }: TextCSVProps)
+{
+    const [rawData, setRawData] = useState<string>('');
     const [errorMsg, setErrorMsg] = useState("");
 
     useEffect(() => {
