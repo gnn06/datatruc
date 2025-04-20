@@ -5,7 +5,7 @@ import { getObs, getAllObs, CollectionSubject, getDepSubjects, getAllObsWithDep 
 import { combineLatest, Subject } from 'rxjs';
 
 test('one collection initialiazed', () => {
-    const given: Collection = { collectionName: 'coll1', collection: [1, 2], func: 'return rows.join(",")' };
+    const given: Collection = { collectionName: 'coll1', rows: [1, 2], func: 'return rows.join(",")' };
 
     const obsColl = getObs(given);
 
@@ -13,7 +13,7 @@ test('one collection initialiazed', () => {
 })
 
 test('one collection', () => {
-    const given: Collection = { collectionName: 'coll1', collection: [], func: '' };
+    const given: Collection = { collectionName: 'coll1', rows: [], func: '' };
 
     const obsColl = getObs(given);
 
@@ -26,8 +26,8 @@ test('one collection', () => {
 
 test('array of collection', () => {
     const given: Collection[] = [
-        { collectionName: 'coll1', collection: [], func: '' },
-        { collectionName: 'coll2', collection: [], func: '' }
+        { collectionName: 'coll1', rows: [], func: '' },
+        { collectionName: 'coll2', rows: [], func: '' }
     ];
     const obsColl = getAllObs(given);
 
@@ -67,8 +67,8 @@ test('poc', () => {
 
 test('getAllObsWithDep', () => {
     const given: Collection[] = [
-        { collectionName: 'coll1', collection: [1,2], func: 'return rows.join(",")' },
-        { collectionName: 'coll2', collection: [2,3], func: 'return rows.join("/") + coll1' }
+        { collectionName: 'coll1', rows: [1,2], func: 'return rows.join(",")' },
+        { collectionName: 'coll2', rows: [2,3], func: 'return rows.join("/") + coll1' }
     ];
     const result$ = getAllObsWithDep(given);
 

@@ -1,16 +1,17 @@
 import Enumerable from "linq";
-import { expect } from "vitest";
 
-export function isTypeValid (collection) {
+import { Collection } from "./data";
+
+export function isTypeValid (collection:unknown[]) {
     return Object.values(collection[0]).some(el => typeof el !== 'string' && typeof el !== 'number');
 }
 
-export function createFunc(funcStr:string, collections:[]) {
+export function createFunc(funcStr:string, collections:Collection[]) {
     const funcParam = ['Enumerable', 'rows'].concat(collections.map(item => item.collectionName)).join(',');
     return new Function(funcParam, funcStr);
 }
 
-export function getData(funcStr, rows, collections) {
+export function getData(funcStr:string, rows:unknown[], collections:Collection[]) {
     if (funcStr === undefined || funcStr === '') {
         return rows;
     }
@@ -35,8 +36,8 @@ export function getData(funcStr, rows, collections) {
     }
 }
 
-export function transformCollection(collection, collections) {
-    const { func: funcStr, collection: rows } = collection;
+export function transformCollection(collection:Collection, collections:Collection[]) {
+    const { func: funcStr, rows } = collection;
     if (funcStr && funcStr !== '') {
         const newData = getData(funcStr, rows, collections)
         return { ...collection, transformedCollection: newData };
@@ -45,8 +46,8 @@ export function transformCollection(collection, collections) {
     }
 }
 
-export function transformAllCollections(collections) {
-    const newCollections = [];
+export function transformAllCollections(collections:Collection[]) {
+    const newCollections:Collection[] = [];
     const clone = collections.slice();
     let el = clone.shift();
     while (el) {
@@ -58,7 +59,7 @@ export function transformAllCollections(collections) {
     return newCollections;
 }
 
-export function getDependencies(func, collections) {
+export function getDependencies(func:string, collections:string[]) {
     return collections.filter(coll => func.indexOf(coll) > -1);
 }
 

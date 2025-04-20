@@ -1,6 +1,6 @@
 export interface Collection {
     collectionName: string;
-    collection: any[];
+    rows: any[];
     func: string;
     transformedCollection?: any[]
 }

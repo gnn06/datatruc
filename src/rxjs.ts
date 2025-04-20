@@ -12,7 +12,7 @@ export interface CollectionSubject {
 
 export function getObsNew(coll: Collection): CollectionSubject {
     const coll$ = {
-        collection$: new BehaviorSubject(coll.collection),
+        collection$: new BehaviorSubject(coll.rows),
         func$: new BehaviorSubject(coll.func),
         result$: new BehaviorSubject([]),
         collection: coll
@@ -23,7 +23,7 @@ export function getObsNew(coll: Collection): CollectionSubject {
 export function getObs(coll: Collection): CollectionSubject {
     const coll$ = {
         coll: coll,
-        collection$: new BehaviorSubject(coll.collection),
+        collection$: new BehaviorSubject(coll.rows),
         func$: new BehaviorSubject(coll.func),
         result$: new BehaviorSubject([])
     };

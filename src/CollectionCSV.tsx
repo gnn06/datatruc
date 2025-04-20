@@ -25,7 +25,7 @@ export function CollectionCSV({ collections, onCollectionChange, id, onDelete: o
 
     const collectionObject = collections[id];
 
-    const { collection: rows, func: funcStr, collectionName } = collectionObject;
+    const { rows, func: funcStr, collectionName } = collectionObject;
 
     // const [funcStr, setFuncStr] = useState("");
     // const [rows, setRows] = useState([]);
@@ -33,7 +33,7 @@ export function CollectionCSV({ collections, onCollectionChange, id, onDelete: o
 
     const transformedCollections = useMemo(() => transformAllCollections(collections), [collections]);
 
-    const data = useMemo(() => transformCollection({ collectionName, collection: rows, func: funcStr }, transformedCollections).transformedCollection,
+    const data = useMemo(() => transformCollection({ collectionName, rows, func: funcStr }, transformedCollections).transformedCollection,
         [collectionName, rows, funcStr, transformedCollections]
     )
 
@@ -60,7 +60,7 @@ export function CollectionCSV({ collections, onCollectionChange, id, onDelete: o
 
     const onRowsChange = (rows: unknown[]) => {
         //setRows(rows);
-        onCollectionChange({ ...collectionObject, collection: rows }, id)
+        onCollectionChange({ ...collectionObject, rows }, id)
     };
 
     const onFuncStrChange = (value:string) => {
@@ -92,7 +92,7 @@ export function CollectionCSV({ collections, onCollectionChange, id, onDelete: o
 
                 {funcShow && <TextFunc collectionName={collectionObject.collectionName} func={collectionObject.func} onTextChange={onFuncStrChange} onClose={onFuncClose} />}
 
-                {rawDataShow && <TextCSV collectionName={collectionObject.collectionName} collection={collectionObject.collection} onCollectionChange={onRowsChange} onClose={onRawDataClose}></TextCSV>}
+                {rawDataShow && <TextCSV collectionName={collectionObject.collectionName} collection={collectionObject.rows} onCollectionChange={onRowsChange} onClose={onRawDataClose}></TextCSV>}
             </Stack>
         </AccordionDetails>
     </Accordion>)

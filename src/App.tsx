@@ -12,7 +12,7 @@ enableMapSet();
 const usePersitCollectionState = createPersistedState<Collection[]>('collections');
 
 function App() {
-    const [collections, setCollections] = usePersitCollectionState([{ collectionName: 'rows0', collection: [], func: '' }])
+    const [collections, setCollections] = usePersitCollectionState([{ collectionName: 'rows0', rows: [], func: '' }])
 
     const onCollectionChange = (collection: Collection, id: number) => {
         const newCollections = produce(collections, (draftCollections) => {
@@ -23,7 +23,7 @@ function App() {
 
     const onAddCollection = () => {
         const newCollections = produce(collections, (draftCollections) => {
-            const newCollection = { collectionName: 'rows' + collections.length, collection: [], func:'' };
+            const newCollection:Collection = { collectionName: 'rows' + collections.length, rows: [], func:'' };
             draftCollections.push(newCollection)
         })
         setCollections(newCollections);
