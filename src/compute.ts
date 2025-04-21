@@ -36,29 +36,6 @@ export function getData(funcStr:string, rows:unknown[], collections:Collection[]
     }
 }
 
-export function transformCollection(collection:Collection, collections:Collection[]) {
-    const { func: funcStr, rows } = collection;
-    if (funcStr && funcStr !== '') {
-        const newData = getData(funcStr, rows, collections)
-        return { ...collection, transformedCollection: newData };
-    } else {
-        return { ...collection, transformedCollection: rows };
-    }
-}
-
-export function transformAllCollections(collections:Collection[]) {
-    const newCollections:Collection[] = [];
-    const clone = collections.slice();
-    let el = clone.shift();
-    while (el) {
-        const tempCollections = newCollections.concat(clone)
-        const newCollection = transformCollection(el, tempCollections);
-        newCollections.push(newCollection);
-        el = clone.shift();
-    }
-    return newCollections;
-}
-
 export function getDependencies(func:string, collections:string[]) {
     if (func === undefined) return [];
     return collections.filter(coll => func.indexOf(coll) > -1);
