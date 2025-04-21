@@ -48,11 +48,12 @@ export function getAllObsWithDep(colls: Collection[]): CollectionSubject[] {
     for (const el of obs$) {
         const dependencies = getDependencies(el.collection.func, colls.map(el => el.collectionName));
         const dependencies$ = getDepSubjects(dependencies, obs$);
-        console.log('create observator');
+        // console.log('create observator');
         el.result$ = combineLatest([el.collection$, el.func$].concat(dependencies$))
-            .pipe(map(([rows, func, deps]) => {
-                console.log('react, call getData')
-                return getData(func, rows, colls)
+            .pipe(map(([rows, func, depsResult]) => {
+                const deps = [{collectionName:dependencies, collection: depsResult}];
+                // console.log('post combineLatest','deps=',deps)
+                return getData(func, rows, deps)
             }));
         // do not subscribe immedialtly on pipe()
         // el.result$.subscribe((value) => {
