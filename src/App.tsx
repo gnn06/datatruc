@@ -5,6 +5,7 @@ import { produce, enableMapSet } from "immer"
 import { Box, Button } from '@mui/material';
 
 import { CollectionCSV } from './CollectionCSV';
+import { getAllObsWithDep } from './rxjs';
 import { Collection } from './data';
 
 enableMapSet();
@@ -12,7 +13,8 @@ enableMapSet();
 const usePersitCollectionState = createPersistedState<Collection[]>('collections');
 
 function App() {
-    const [collections, setCollections] = usePersitCollectionState([{ collectionName: 'rows0', rows: [], func: '' }])
+    const [collections, setCollections] = usePersitCollectionState([{ collectionName: 'rows0', rows: [], func: '' }]);
+    const collections$ = getAllObsWithDep(collections);
 
     const onCollectionChange = (collection: Collection, id: number) => {
         const newCollections = produce(collections, (draftCollections) => {
@@ -38,7 +40,7 @@ function App() {
 
     return (<Box>
         {Array.from(collections).map((value, index) => <CollectionCSV key={index} id={index} collections={collections} 
-            onCollectionChange={onCollectionChange} onDelete={onDeleteCollection} />)}
+            onCollectionChange={onCollectionChange} onDelete={onDeleteCollection} collectionsObs={collections$}/>)}
         <Button sx={{ mt: 1 }} onClick={onAddCollection}>Ajouter collection</Button>
     </Box>);
 }

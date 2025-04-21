@@ -1,29 +1,32 @@
 import { useState } from "react";
+import { BehaviorSubject } from "rxjs";
+import { useObservable } from "./react-rxjs";
 
 import { Text } from "./Text";
 import { createFunc } from "./compute";
 
 interface TextFuncProps {
     collectionName: string,
-    func: string,
-    onTextChange: (text: string) => void,
+    funcObs: BehaviorSubject<string>,
     onClose: () => void
 };
 
-export function TextFunc({ collectionName, func, onTextChange, onClose }
+export function TextFunc({ collectionName, funcObs, onClose }
     : TextFuncProps
 ) {
-
-    const [funcStr, setFuncStr] = useState(func);
+    
     const [errorMsg, setErrorMsg] = useState("");
 
-
+    
+    const funcStr = useObservable(funcObs, "");
+    
     const onInnerTextChange = (text: string) => {
-        setFuncStr(text);
+        // setFuncStr(text);
+        funcObs.next(text);
         try {
             createFunc(text, []);
-            setErrorMsg("");
-            onTextChange(text);
+            setErrorMsg("");            
+            // onTextChange(text);
         } catch (error) {
             setErrorMsg(error.message);
         }

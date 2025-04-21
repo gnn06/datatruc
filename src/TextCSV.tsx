@@ -3,6 +3,9 @@ import Papa from 'papaparse';
 import { ParseError } from 'papaparse';
 
 import { Text } from "./Text";
+import { useObservable } from './react-rxjs';
+import { map } from 'rxjs';
+import { CollectionSubject } from './rxjs';
 
 function getRawDataFromRows(collection:unknown[]) {
     if (collection === undefined) return '';
@@ -19,25 +22,26 @@ function getMessageError(errors: ParseError[]): string {
 
 interface TextCSVProps {
     collectionName: string,
-    collection: unknown[],
-    onCollectionChange: (collection: unknown[]) => void,
+    collectionObs: CollectionSubject,
     onClose: () => void
 };
 
-export function TextCSV({ collectionName, collection, onCollectionChange, onClose }: TextCSVProps)
-{
-    const [rawData, setRawData] = useState<string>('');
+export function TextCSV({ collectionName, collectionObs, onClose }: TextCSVProps) {
+
     const [errorMsg, setErrorMsg] = useState("");
 
-    useEffect(() => {
-        const rawData = getRawDataFromRows(collection);
-        setRawData(rawData);
-    }, [collection])
+    const rawData = useObservable(collectionObs.pipe(map((value) => getRawDataFromRows(value))), "");
+
+    // useEffect(() => {
+    //     const rawData = getRawDataFromRows(collection);
+    //     setRawData(rawData);
+    // }, [collection])
 
     const onTextChange = (text: string) => {
-        setRawData(text);
+        // setRawData(text);
         if (text === '') {
-            onCollectionChange([])
+            // onCollectionChange([])
+            collectionObs.next([]);
             return;
         }
         const csvConfig = { header: true, skipEmptyLines: true };
@@ -47,7 +51,8 @@ export function TextCSV({ collectionName, collection, onCollectionChange, onClos
             return;
         } else {
             setErrorMsg("");
-            onCollectionChange(csvData.data);
+            // onCollectionChange(csvData.data);
+            collectionObs.next(csvData.data);
             return;
         }
         // setRows(csvData.data)
