@@ -14,19 +14,19 @@ type ApplicationPolicyRow = {
 }
 
 
-test('should ', () => {
+test('poc linq ', () => {
     const givenVM = [{ vm: 'titane7p', cve: 123 }, { vm: 'nickel-cms1', cve: 12 }]
 
-    const givenApplicationPolicy = [{ application: 'titane7p', patch_policy: 'patch lors du PCA' }]
+    const givenApplicationPolicy = [{ application: 'titane7p', patchPolicy: 'patch lors du PCA' }]
 
     const expected = [{
         "vm": "titane7p",
         "cve": 123,
-        "patch_policy": "patch lors du PCA",
+        "patchPolicy": "patch lors du PCA",
     }, {
         "vm": "nickel-cms1",
         "cve": 12,
-        "patch_policy": "",
+        "patchPolicy": "",
 
     }]
     const result = join(givenVM, givenApplicationPolicy)
