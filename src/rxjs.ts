@@ -6,6 +6,7 @@ import { getData, getDependencies } from './compute.ts';
 export interface CollectionSubject {
     collection$: BehaviorSubject<any[]>,
     func$: BehaviorSubject<string>,
+    dependencies$: BehaviorSubject<string[]>,
     result$: BehaviorSubject<any[]>,
     collection: Collection
 };
@@ -14,6 +15,7 @@ export function getObsNew(coll: Collection): CollectionSubject {
     const coll$ = {
         collection$: new BehaviorSubject(coll.rows),
         func$: new BehaviorSubject(coll.func),
+        dependencies$: new BehaviorSubject([]),
         result$: new BehaviorSubject([]),
         collection: coll
     };
@@ -48,6 +50,9 @@ export function getAllObsWithDep(colls: Collection[]): CollectionSubject[] {
     for (const el of obs$) {
         const dependencies = getDependencies(el.collection.func, colls.map(el => el.collectionName));
         const dependencies$ = getDepSubjects(dependencies, obs$);
+        el.dependencies$ = el.func$.pipe(
+            map((func) => getDependencies(func, colls.map(el => el.collectionName)))
+        );
         // console.log('create observator');
         el.result$ = combineLatest([el.collection$, el.func$].concat(dependencies$))
             .pipe(map(([rows, func, depsResult]) => {
