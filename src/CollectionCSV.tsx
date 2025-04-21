@@ -28,15 +28,6 @@ export function CollectionCSV({ collections, collectionsObs, onCollectionChange,
     const currentCollection$:CollectionSubject = collectionsObs[id];
     const { collectionName } = collectionObject;
 
-    // const [funcStr, setFuncStr] = useState("");
-    // const [rows, setRows] = useState([]);
-    //const [collectionName, setCollectionName] = useState('rows' + id);
-
-    // const transformedCollections = useMemo(() => transformAllCollections(collections), [collections]);
-
-    // const data = useMemo(() => transformCollection({ collectionName, collection: rows, func: funcStr }, transformedCollections).transformedCollection,
-    //     [collectionName, rows, funcStr, transformedCollections]
-    // )
     const data = useObservable(currentCollection$.result$, []);
 
     const onCSV_Import = () => {
@@ -61,12 +52,10 @@ export function CollectionCSV({ collections, collectionsObs, onCollectionChange,
     }
 
     const onRowsChange = (rows: unknown[]) => {
-        //setRows(rows);
-        onCollectionChange({ ...collectionObject, rows }, id)
+        currentCollection$.collection$.next(rows);
     };
 
     const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        //setCollectionName(e.target.value)
         onCollectionChange({ ...collectionObject, collectionName: e.target.value }, id)
     }
 
