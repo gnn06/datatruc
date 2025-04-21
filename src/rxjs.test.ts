@@ -1,9 +1,8 @@
 import { expect, test } from 'vitest'
-import { TestScheduler } from 'rxjs/testing';
 
 import { Collection } from './data.ts';
-import { getObs, getAllObs, CollectionSubject, getDepSubjects, getAllObsWithDep } from './rxjs.ts';
-import { combineLatest, firstValueFrom, Subject } from 'rxjs';
+import { getAllObs, CollectionSubject, getDepSubjects, getAllObsWithDep } from './rxjs.ts';
+import { BehaviorSubject, combineLatest, firstValueFrom, map, Subject, switchMap } from 'rxjs';
 
 test.skip('one collection initialiazed', () => {
     const given: Collection = { collectionName: 'coll1', rows: [1, 2], func: 'return rows.join(",")' };
@@ -68,8 +67,8 @@ test('poc', () => {
 
 test('getAllObsWithDep', async () => {
     const given: Collection[] = [
-        { collectionName: 'coll1', rows: [1,2], func: 'return rows.join(",")' },
-        { collectionName: 'coll2', rows: [2,3], func: 'return rows.join("/") + coll1' }
+        { collectionName: 'coll1', rows: [1, 2], func: 'return rows.join(",")' },
+        { collectionName: 'coll2', rows: [2, 3], func: 'return rows.join("/") + coll1' }
     ];
 
     const result$ = getAllObsWithDep(given);
@@ -79,4 +78,34 @@ test('getAllObsWithDep', async () => {
     expect(value0).toEqual("10,20")
     const value1 = await firstValueFrom(result$[1].result$);
     expect(value1).toEqual("2/310,20")
+});
+
+test('poc dependencies', async () => {
+    const obs$ = [
+        new BehaviorSubject(['1', '2']),
+        new BehaviorSubject(['2', '3'])
+    ];
+    function getObsFromIndex(index: number[]) {
+        return index.map(el => obs$[el])
+    };
+    const dep$ = new BehaviorSubject([0]);
+
+    const obs3$ = dep$.pipe(
+        switchMap((deps) => combineLatest(getObsFromIndex(deps))
+            .pipe(
+                map((values) => values.reduce((acc, el) => acc.concat(el.join(',')), ''))
+            )));
+
+    let result = await firstValueFrom(obs3$);
+    expect(result).toEqual('1,2');
+    obs$[0].next(['10', "20"])
+    result = await firstValueFrom(obs3$);
+    expect(result).toEqual('10,20');
+    dep$.next([1]);
+    result = await firstValueFrom(obs3$);
+    expect(result).toEqual('2,3');
+    dep$.next([0, 1]);
+    result = await firstValueFrom(obs3$);
+    expect(result).toEqual('10,202,3');
+
 });
