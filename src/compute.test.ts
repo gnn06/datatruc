@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { getData, getDependencies, isTypeValid } from "./compute";
+import { Collection } from './data';
 
 test('getData without dependency', () => {
     const givenFuncStr = 'return rows.map(el => el.value * 2)';

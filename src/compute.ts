@@ -16,7 +16,7 @@ export function getData(funcStr:string, rows:unknown[], collections:Collection[]
         return rows;
     }
     try {
-        const funcArg = [Enumerable, rows].concat(collections.map(item => item.collection));
+        const funcArg = [Enumerable, rows].concat(collections.map(item => item.rows));
         const func = createFunc(funcStr, collections);
         const newData = func(...funcArg)
         if (newData === undefined) {

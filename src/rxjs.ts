@@ -51,7 +51,7 @@ export function getAllObsWithDep(colls: Collection[]): CollectionSubject[] {
         // console.log('create observator');
         el.result$ = combineLatest([el.collection$, el.func$].concat(dependencies$))
             .pipe(map(([rows, func, depsResult]) => {
-                const deps = [{collectionName:dependencies, collection: depsResult}];
+                const deps:Collection[] = [{collectionName:dependencies, rows: depsResult}];
                 // console.log('post combineLatest','deps=',deps)
                 return getData(func, rows, deps)
             }));
