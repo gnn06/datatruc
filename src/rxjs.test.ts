@@ -3,7 +3,7 @@ import { TestScheduler } from 'rxjs/testing';
 
 import { Collection } from './data.ts';
 import { getObs, getAllObs, CollectionSubject, getDepSubjects, getAllObsWithDep } from './rxjs.ts';
-import { combineLatest, Subject } from 'rxjs';
+import { combineLatest, firstValueFrom, Subject } from 'rxjs';
 
 test.skip('one collection initialiazed', () => {
     const given: Collection = { collectionName: 'coll1', rows: [1, 2], func: 'return rows.join(",")' };
@@ -43,7 +43,7 @@ test.skip('array of collection', () => {
 
 test('get dependant subjects', () => {
     const givenDep = ['coll1'];
-    const givenAllSubject$: CollectionSubject[] = [{ collection: { collectionName: 'coll1'}, result$: 'result' }];
+    const givenAllSubject$: CollectionSubject[] = [{ collection: { collectionName: 'coll1' }, result$: 'result' }];
     const result = getDepSubjects(givenDep, givenAllSubject$);
     expect(result).toEqual(['result']);
 });
@@ -59,31 +59,24 @@ test('poc', () => {
 
     obs1Rows$.next(1);
     obs1Func$.next(2);
-    
+
     obs2Rows$.next(3);
     obs2Func$.next(4);
 
-    obs2Result$.subscribe((value) => expect(value).toEqual([3,4, [1, 2]]));
+    obs2Result$.subscribe((value) => expect(value).toEqual([3, 4, [1, 2]]));
 });
 
-test('getAllObsWithDep', () => {
+test('getAllObsWithDep', async () => {
     const given: Collection[] = [
         { collectionName: 'coll1', rows: [1,2], func: 'return rows.join(",")' },
         { collectionName: 'coll2', rows: [2,3], func: 'return rows.join("/") + coll1' }
     ];
+
     const result$ = getAllObsWithDep(given);
+    result$[0].collection$.next([10, 20]);
 
-    // result$[0].collection$.next([1,2]);
-    // result$[0].func$.next('return rows.join(",")');
-    // result$[0].result$.subscribe((value) => expect(value).toEqual("1,2"))
-    // console.log(result$[1].result$.value)
-    // result$[1].result$.subscribe((value) => expect(value).toEqual("2/31,2"))
-
-    // result$[1].collection$.next([2,3])
-    // result$[1].func$.next('return rows.join("/") + coll1')
-    // result$[1].result$.subscribe(console.log)
-    // expect(given[1].transformedCollection).toEqual("2/31,2")
-    result$[0].collection$.next([10,20]);
-    result$[1].result$.subscribe((value) => {console.log('expect',value);expect(value).toEqual("2/310,20")})
-    // console.log(given)
+    const value0 = await firstValueFrom(result$[0].result$);
+    expect(value0).toEqual("10,20")
+    const value1 = await firstValueFrom(result$[1].result$);
+    expect(value1).toEqual("2/310,20")
 });
