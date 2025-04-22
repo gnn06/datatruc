@@ -4,19 +4,17 @@ import { Collection } from './data.ts';
 import { getData, getDependencies } from './compute.ts';
 
 export interface CollectionSubject {
-    collection$: BehaviorSubject<any[]>,
+    collection$: BehaviorSubject<unknown[]>,
     func$: BehaviorSubject<string>,
-    dependencies$: BehaviorSubject<string[]>,
-    result$: BehaviorSubject<any[]>,
+    result$: BehaviorSubject<unknown[]>,
     collection: Collection
 };
 
 export function getObsNew(coll: Collection): CollectionSubject {
     const coll$ = {
-        collection$: new BehaviorSubject(coll.rows),
+        collection$: new BehaviorSubject<unknown[]>(coll.rows),
         func$: new BehaviorSubject(coll.func),
-        dependencies$: new BehaviorSubject([]),
-        result$: new BehaviorSubject([]),
+        result$: new BehaviorSubject<unknown[]>([]),
         collection: coll
     };
     return coll$;
@@ -41,22 +39,19 @@ export function getObsNew(coll: Collection): CollectionSubject {
 //     return coll$;
 // }
 
-export function getAllObs(colls: Collection[]): CollectionSubject[] {
-    return colls.map((coll) => getObs(coll));
-}
+// export function getAllObs(colls: Collection[]): CollectionSubject[] {
+//     return colls.map((coll) => getObs(coll));
+// }
 
 export function getAllObsWithDep(colls: Collection[]): CollectionSubject[] {
     const obs$ = colls.map(el => getObsNew(el));
     for (const el of obs$) {
         const dependencies = getDependencies(el.collection.func, colls.map(el => el.collectionName));
         const dependencies$ = getDepSubjects(dependencies, obs$);
-        el.dependencies$ = el.func$.pipe(
-            map((func) => getDependencies(func, colls.map(el => el.collectionName)))
-        );
         // console.log('create observator');
         el.result$ = combineLatest([el.collection$, el.func$].concat(dependencies$))
-            .pipe(map(([rows, func, depsResult]) => {
-                const deps:Collection[] = [{collectionName:dependencies, rows: depsResult}];
+            .pipe(map(([rows, func, ...depsResult]) => {
+                const deps: Collection[] = dependencies.map((dep, i) => ({ collectionName: dep, rows: depsResult[i], func: '' }));
                 // console.log('post combineLatest','deps=',deps)
                 return getData(func, rows, deps)
             }));

@@ -78,35 +78,11 @@ describe('getAllObsWithDep', () => {
         const value0 = await firstValueFrom(result$[0].result$);
         expect(value0).toEqual("10,20")
 
-        const deps = await firstValueFrom(result$[1].dependencies$);
-        expect(deps).toEqual(["coll1"])
-
         const value1 = await firstValueFrom(result$[1].result$);
         expect(value1).toEqual("2/310,20")
     });
 
-    test('dependencies', async () => {
-        const given: Collection[] = [
-            { collectionName: 'coll1', rows: [1, 2], func: 'return rows.join(",")' },
-            { collectionName: 'coll2', rows: [2, 3], func: 'return rows.join("/")' }
-        ];
-
-        const result$ = getAllObsWithDep(given);
-
-        let deps = await firstValueFrom(result$[1].dependencies$);
-        expect(deps).toEqual([])
-
-        result$[1].func$.next('return rows.join("/") + coll1');
-
-        deps = await firstValueFrom(result$[1].dependencies$);
-        expect(deps).toEqual(["coll1"])
-
-
-
-    })
-
-
-    test.skip('2 deps', async () => {
+    test('2 deps', async () => {
         const given: Collection[] = [
             { collectionName: 'coll1', rows: [1, 2], func: 'return rows.join(",")' },
             { collectionName: 'coll2', rows: [2, 3], func: 'return rows.join("/")' },
