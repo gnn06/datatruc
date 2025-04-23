@@ -98,6 +98,20 @@ describe('getAllObsWithDep', () => {
         const value2 = await firstValueFrom(result$[2].result$);
         expect(value2).toEqual("1,22/3")
     });
+
+    test('changing deps', async () => {
+        const given: Collection[] = [
+            { collectionName: 'coll1', rows: [1, 2], func: 'return rows.join(",")' },
+            { collectionName: 'coll2', rows: [2, 3], func: 'return rows.join("/")' },
+            { collectionName: 'coll3', rows: [],     func: 'return coll1' }
+        ];
+        const result$ = getAllObsWithDep(given);
+        const valueBefore = await firstValueFrom(result$[2].result$);
+        expect(valueBefore).toEqual("1,2");
+        result$[2].func$.next('return coll1 + coll2');
+        const valueAfter = await firstValueFrom(result$[2].result$);
+        expect(valueAfter).toEqual("1,22/3");
+    });
 });
 
 test('poc dependencies', async () => {

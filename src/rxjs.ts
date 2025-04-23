@@ -1,4 +1,4 @@
-import { BehaviorSubject, combineLatest, map } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
 
 import { Collection } from './data.ts';
 import { getData, getDependencies } from './compute.ts';
@@ -46,20 +46,18 @@ export function getObsNew(coll: Collection): CollectionSubject {
 export function getAllObsWithDep(colls: Collection[]): CollectionSubject[] {
     const obs$ = colls.map(el => getObsNew(el));
     for (const el of obs$) {
-        const dependencies = getDependencies(el.collection.func, colls.map(el => el.collectionName));
-        const dependencies$ = getDepSubjects(dependencies, obs$);
-        // console.log('create observator');
-        el.result$ = combineLatest([el.collection$, el.func$].concat(dependencies$))
-            .pipe(map(([rows, func, ...depsResult]) => {
-                const deps: Collection[] = dependencies.map((dep, i) => ({ collectionName: dep, rows: depsResult[i], func: '' }));
-                // console.log('post combineLatest','deps=',deps)
-                return getData(func, rows, deps)
-            }));
-        // do not subscribe immedialtly on pipe()
-        // el.result$.subscribe((value) => {
-        //         console.log('flux, propafate transformedCollection', value)
-        //         el.collection.transformedCollection = value;
-        //     })
+        el.result$ = el.func$.pipe(
+            map((func: string) => getDependencies(func, colls.map(el => el.collectionName))),
+            switchMap((deps) => {
+                const dependencies$ = getDepSubjects(deps, obs$);
+                return combineLatest([el.collection$, el.func$].concat(dependencies$))
+                    .pipe(map(([rows, func, ...depsResult]) => {
+                        const depsCollection: Collection[] = deps.map((dep, i) => ({ collectionName: dep, rows: depsResult[i], func: '' }));
+                        // console.log('post combineLatest','deps=',deps)
+                        return getData(func, rows, depsCollection)
+                    }))
+            })
+        );
     }
     return obs$;
 }
