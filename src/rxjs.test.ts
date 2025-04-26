@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
 import { Collection } from './data.ts';
-import { getAllObs, CollectionSubject, getDepSubjects, getAllObsWithDep } from './rxjs.ts';
-import { BehaviorSubject, combineLatest, firstValueFrom, map, Subject, switchMap } from 'rxjs';
+import { getAllObs, CollectionSubject, getDepSubjects, getAllObsWithDep, getCollectionFRomOBs, mergeCollectionObs } from './rxjs.ts';
+import { BehaviorSubject, combineLatest, firstValueFrom, map, merge, Observable, scan, Subject, switchMap, tap } from 'rxjs';
 
 test.skip('one collection initialiazed', () => {
     const given: Collection = { collectionName: 'coll1', rows: [1, 2], func: 'return rows.join(",")' };
@@ -86,7 +86,7 @@ describe('getAllObsWithDep', () => {
         const given: Collection[] = [
             { collectionName: 'coll1', rows: [1, 2], func: 'return rows.join(",")' },
             { collectionName: 'coll2', rows: [2, 3], func: 'return rows.join("/")' },
-            { collectionName: 'coll3', rows: [],     func: 'return coll1 + coll2' }
+            { collectionName: 'coll3', rows: [], func: 'return coll1 + coll2' }
         ];
 
         const result$ = getAllObsWithDep(given);
@@ -103,7 +103,7 @@ describe('getAllObsWithDep', () => {
         const given: Collection[] = [
             { collectionName: 'coll1', rows: [1, 2], func: 'return rows.join(",")' },
             { collectionName: 'coll2', rows: [2, 3], func: 'return rows.join("/")' },
-            { collectionName: 'coll3', rows: [],     func: 'return coll1' }
+            { collectionName: 'coll3', rows: [], func: 'return coll1' }
         ];
         const result$ = getAllObsWithDep(given);
         const valueBefore = await firstValueFrom(result$[2].result$);
@@ -142,4 +142,70 @@ test('poc dependencies', async () => {
     result = await firstValueFrom(obs3$);
     expect(result).toEqual('10,202,3');
 
+});
+
+test('poc collectionFromOBs', () => {
+    const givenCollection = [
+        { collectionName: 'coll1', rows: [], func: '' },
+        { collectionName: 'coll2', rows: [], func: '' },
+    ];
+    const givenObs = getAllObsWithDep(givenCollection);
+
+    givenObs[0].collection$.next([10, 20]);
+    givenObs[0].func$.next('func1');
+
+    givenObs[1].collection$.next([33, 45]);
+    givenObs[1].func$.next('func2');
+
+    const result = getCollectionFRomOBs(givenObs);
+
+    const expected = [
+        { collectionName: 'coll1', rows: [10, 20], func: 'func1' },
+        { collectionName: 'coll2', rows: [33, 45], func: 'func2' },
+    ];
+
+    expect(result).toEqual(expected)
+});
+
+test('getCollectionFRomOBs', () => {
+    const givenCollection = [
+        { collectionName: 'coll1', rows: [], func: '' },
+        { collectionName: 'coll2', rows: [], func: '' },
+    ];
+    const givenObs = getAllObsWithDep(givenCollection);
+
+    givenObs[0].collection$.next([10, 20]);
+    givenObs[0].func$.next('func1');
+
+    givenObs[1].collection$.next([33, 45]);
+    givenObs[1].func$.next('func2');
+
+    const result = getCollectionFRomOBs(givenObs);
+
+    const expected = [
+        { collectionName: 'coll1', rows: [10, 20], func: 'func1' },
+        { collectionName: 'coll2', rows: [33, 45], func: 'func2' },
+    ];
+
+    expect(result).toEqual(expected)
+});
+
+test('poc persist', () => {
+    const givenCollection = [
+        { collectionName: 'coll1', rows: [], func: '*' },
+        { collectionName: 'coll2', rows: [], func: '*' },
+    ];
+    const givenObs = getAllObsWithDep(givenCollection);
+
+    const merge$ = mergeCollectionObs(givenObs);
+
+    // when
+    givenObs[0].collection$.next([1, 2]);
+    givenObs[0].func$.next('func');
+    givenObs[1].collection$.next([3, 5]);
+
+    // then
+    let count = 0;
+    merge$.subscribe((value) => count++);
+    expect(count).toEqual(4);
 });

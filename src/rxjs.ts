@@ -1,4 +1,4 @@
-import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, merge, switchMap } from 'rxjs';
 
 import { Collection } from './data.ts';
 import { getData, getDependencies } from './compute.ts';
@@ -67,4 +67,24 @@ export function getDepSubjects(deps: string[], allSubjects$: CollectionSubject[]
         const subject = allSubjects$.find(el => el.collection.collectionName === dep);
         return subject?.result$;
     })
+}
+
+export function getCollectionFRomOBs(obs: CollectionSubject[]): Collection[] {
+    const result = obs.map((el => {
+        const obs: Collection = {
+            collectionName: el.collection.collectionName,
+            rows: el.collection$.getValue(),
+            func: el.func$.getValue(),
+        };
+        return obs;
+    }));
+    return result
+}
+
+export function mergeCollectionObs(givenObs: CollectionSubject[]) {
+    const flatObs = givenObs.reduce((acc, el) => acc.concat(el.collection$, el.func$), [])
+
+    const result = merge(flatObs);
+
+    return result;
 }
