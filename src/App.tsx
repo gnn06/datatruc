@@ -1,20 +1,24 @@
 import './App.css'
-import createPersistedState from 'use-persisted-state';
 
 import { produce, enableMapSet } from "immer"
 import { Box, Button } from '@mui/material';
 
 import { CollectionCSV } from './CollectionCSV';
-import { getAllObsWithDep } from './rxjs';
+import { getAllObsWithDep, getCollectionFRomOBs as getCollectionFromObs, mergeCollectionObs } from './rxjs';
 import { Collection } from './data';
+import { useState } from 'react';
 
 enableMapSet();
 
-const usePersitCollectionState = createPersistedState<Collection[]>('collections');
-
 function App() {
-    const [collections, setCollections] = usePersitCollectionState([{ collectionName: 'rows0', rows: [], func: '' }]);
+    const [collections, setCollections] = useState<Collection[]>([{ collectionName: 'rows0', rows: [], func: '' }]);
     const collections$ = getAllObsWithDep(collections);
+    
+    const merge$ = mergeCollectionObs(collections$);    
+    merge$.subscribe(() => {
+        const collection = getCollectionFromObs(collections$);
+        localStorage.setItem('collections', JSON.stringify(collection));
+    });
 
     const onCollectionChange = (collection: Collection, id: number) => {
         const newCollections = produce(collections, (draftCollections) => {

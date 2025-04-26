@@ -84,7 +84,7 @@ export function getCollectionFRomOBs(obs: CollectionSubject[]): Collection[] {
 export function mergeCollectionObs(givenObs: CollectionSubject[]) {
     const flatObs = givenObs.reduce((acc, el) => acc.concat(el.collection$, el.func$), [])
 
-    const result = merge(flatObs);
+    const result = merge(...flatObs);
 
     return result;
 }

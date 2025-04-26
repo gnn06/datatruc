@@ -199,13 +199,15 @@ test('poc persist', () => {
 
     const merge$ = mergeCollectionObs(givenObs);
 
+
+    // then
+    let count = 0;
+    merge$.subscribe((value) => count++);
+
     // when
     givenObs[0].collection$.next([1, 2]);
     givenObs[0].func$.next('func');
     givenObs[1].collection$.next([3, 5]);
 
-    // then
-    let count = 0;
-    merge$.subscribe((value) => count++);
-    expect(count).toEqual(4);
+    expect(count).toEqual(4 + 3);
 });
