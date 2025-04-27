@@ -47,15 +47,15 @@ export function getObsNew(coll: Collection): CollectionSubject {
 
 export function getAllObsWithDep(colls: Collection[]): CollectionSubject[] {
     const obs$ = colls.map(el => getObsNew(el));
+    const names$ = merge(...obs$.map(el => el.name$));
     for (const el of obs$) {
-        el.result$ = el.func$.pipe(
-            map((func: string) => getDependencies(func, colls.map(el => el.collectionName))),
+         el.result$ = combineLatest([el.func$, names$]).pipe(
+            map(([func, names]) => getDependencies(func, obs$.map(el => el.name$.getValue()))),
             switchMap((deps) => {
                 const dependencies$ = getDepSubjects(deps, obs$);
                 return combineLatest([el.collection$, el.func$].concat(dependencies$))
                     .pipe(map(([rows, func, ...depsResult]) => {
                         const depsCollection: Collection[] = deps.map((dep, i) => ({ collectionName: dep, rows: depsResult[i], func: '' }));
-                        // console.log('post combineLatest','deps=',deps)
                         return getData(func, rows, depsCollection)
                     }))
             })
@@ -66,7 +66,7 @@ export function getAllObsWithDep(colls: Collection[]): CollectionSubject[] {
 
 export function getDepSubjects(deps: string[], allSubjects$: CollectionSubject[]) {
     return deps.map(dep => {
-        const subject = allSubjects$.find(el => el.collection.collectionName === dep);
+        const subject = allSubjects$.find(el => el.name$.getValue() === dep);
         return subject?.result$;
     })
 }

@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
 import { Collection } from './data.ts';
-import { getAllObs, CollectionSubject, getDepSubjects, getAllObsWithDep, getCollectionFromObs, mergeCollectionObs } from './rxjs.ts';
-import { BehaviorSubject, combineLatest, firstValueFrom, map, merge, Observable, scan, Subject, switchMap, tap } from 'rxjs';
+import { CollectionSubject, getDepSubjects, getAllObsWithDep, getCollectionFromObs, mergeCollectionObs } from './rxjs.ts';
+import { BehaviorSubject, combineLatest, firstValueFrom, map, Subject, switchMap } from 'rxjs';
 
 test.skip('one collection initialiazed', () => {
     const given: Collection = { collectionName: 'coll1', rows: [1, 2], func: 'return rows.join(",")' };
@@ -42,9 +42,9 @@ test.skip('array of collection', () => {
 
 test('get dependant subjects', () => {
     const givenDep = ['coll1'];
-    const givenAllSubject$: CollectionSubject[] = [{ collection: { collectionName: 'coll1' }, result$: 'result' }];
+    const givenAllSubject$: CollectionSubject[] = [{ name$: new BehaviorSubject('coll1'), result$: new BehaviorSubject([21]) }];
     const result = getDepSubjects(givenDep, givenAllSubject$);
-    expect(result).toEqual(['result']);
+    expect(result).toEqual([givenAllSubject$[0].result$]);
 });
 
 test('poc', () => {
@@ -112,6 +112,24 @@ describe('getAllObsWithDep', () => {
         const valueAfter = await firstValueFrom(result$[2].result$);
         expect(valueAfter).toEqual("1,22/3");
     });
+
+    test('changing collention name', async () => {
+        // Given
+        const givenCollections: Collection[] = [
+            { collectionName: 'foo', rows: [1, 2], func: '' },
+            { collectionName: 'coll2', rows: [3, 5], func: '' },
+            { collectionName: 'coll3', rows: [],     func: 'return foo' }
+        ];
+        const result$ = getAllObsWithDep(givenCollections);
+        const valueBefore = await firstValueFrom(result$[2].result$);
+        expect(valueBefore).toEqual([1,2]);
+        // when
+        result$[0].name$.next('coll1');
+        result$[1].name$.next('foo');
+        // then
+        const valueAfter = await firstValueFrom(result$[2].result$);
+        expect(valueAfter).toEqual([3,5]);
+    })
 });
 
 test('poc dependencies', async () => {
