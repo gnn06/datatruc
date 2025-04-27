@@ -21,7 +21,7 @@ function App() {
     });
 
     const onAddCollection = () => {
-        const newCollections = produce(collections, (draftCollections) => {
+        const newCollections = produce(getCollectionFromObs(collections$), (draftCollections) => {
             const newCollection:Collection = { collectionName: 'rows' + collections.length, rows: [], func:'' };
             draftCollections.push(newCollection)
         })
@@ -29,8 +29,8 @@ function App() {
     }
 
     const onDeleteCollection = (index:number) => {
-        const newCollections = produce(collections, (draftCollections) => {
-            draftCollections.splice(index)
+        const newCollections = produce(getCollectionFromObs(collections$), (draftCollections) => {
+            draftCollections.splice(index,1)
         })
         setCollections(newCollections);
     }
