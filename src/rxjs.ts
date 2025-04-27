@@ -6,6 +6,7 @@ import { getData, getDependencies } from './compute.ts';
 export interface CollectionSubject {
     collection$: BehaviorSubject<unknown[]>,
     func$: BehaviorSubject<string>,
+    name$: BehaviorSubject<string>,
     result$: BehaviorSubject<unknown[]>,
     collection: Collection
 };
@@ -14,6 +15,7 @@ export function getObsNew(coll: Collection): CollectionSubject {
     const coll$ = {
         collection$: new BehaviorSubject<unknown[]>(coll.rows),
         func$: new BehaviorSubject(coll.func),
+        name$: new BehaviorSubject(coll.collectionName),
         result$: new BehaviorSubject<unknown[]>([]),
         collection: coll
     };
@@ -69,10 +71,10 @@ export function getDepSubjects(deps: string[], allSubjects$: CollectionSubject[]
     })
 }
 
-export function getCollectionFRomOBs(obs: CollectionSubject[]): Collection[] {
+export function getCollectionFromObs(obs: CollectionSubject[]): Collection[] {
     const result = obs.map((el => {
         const obs: Collection = {
-            collectionName: el.collection.collectionName,
+            collectionName: el.name$.getValue(),
             rows: el.collection$.getValue(),
             func: el.func$.getValue(),
         };
@@ -82,7 +84,7 @@ export function getCollectionFRomOBs(obs: CollectionSubject[]): Collection[] {
 }
 
 export function mergeCollectionObs(givenObs: CollectionSubject[]) {
-    const flatObs = givenObs.reduce((acc, el) => acc.concat(el.collection$, el.func$), [])
+    const flatObs = givenObs.reduce((acc, el) => acc.concat(el.collection$, el.func$, el.name$), [])
 
     const result = merge(...flatObs);
 

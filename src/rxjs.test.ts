@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import { Collection } from './data.ts';
-import { getAllObs, CollectionSubject, getDepSubjects, getAllObsWithDep, getCollectionFRomOBs, mergeCollectionObs } from './rxjs.ts';
+import { getAllObs, CollectionSubject, getDepSubjects, getAllObsWithDep, getCollectionFromObs, mergeCollectionObs } from './rxjs.ts';
 import { BehaviorSubject, combineLatest, firstValueFrom, map, merge, Observable, scan, Subject, switchMap, tap } from 'rxjs';
 
 test.skip('one collection initialiazed', () => {
@@ -157,7 +157,7 @@ test('poc collectionFromOBs', () => {
     givenObs[1].collection$.next([33, 45]);
     givenObs[1].func$.next('func2');
 
-    const result = getCollectionFRomOBs(givenObs);
+    const result = getCollectionFromObs(givenObs);
 
     const expected = [
         { collectionName: 'coll1', rows: [10, 20], func: 'func1' },
@@ -180,7 +180,7 @@ test('getCollectionFRomOBs', () => {
     givenObs[1].collection$.next([33, 45]);
     givenObs[1].func$.next('func2');
 
-    const result = getCollectionFRomOBs(givenObs);
+    const result = getCollectionFromObs(givenObs);
 
     const expected = [
         { collectionName: 'coll1', rows: [10, 20], func: 'func1' },
@@ -209,5 +209,5 @@ test('poc persist', () => {
     givenObs[0].func$.next('func');
     givenObs[1].collection$.next([3, 5]);
 
-    expect(count).toEqual(4 + 3);
+    expect(count).toEqual(6 + 3);
 });

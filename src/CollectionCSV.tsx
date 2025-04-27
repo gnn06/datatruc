@@ -15,20 +15,19 @@ import { DataTable } from "./DataTale";
 interface CollectionCSVProps {
     collections: Collection[],
     collectionsObs: CollectionSubject[],
-    onCollectionChange: (collection: Collection, id: number) => void,
     id: number,
     onDelete: (id: number) => void
 };
 
-export function CollectionCSV({ collections, collectionsObs, onCollectionChange, id, onDelete: onDeleteParent }
+export function CollectionCSV({ collections, collectionsObs, id, onDelete: onDeleteParent }
     : CollectionCSVProps
 ) {
 
     const collectionObject = collections[id];
     const currentCollection$:CollectionSubject = collectionsObs[id];
-    const { collectionName } = collectionObject;
 
     const data = useObservable(currentCollection$.result$, []);
+    const collectionName = useObservable(currentCollection$.name$, collectionObject.collectionName);
 
     const onCSV_Import = () => {
         setShowRawData(!rawDataShow);
@@ -56,7 +55,7 @@ export function CollectionCSV({ collections, collectionsObs, onCollectionChange,
     };
 
     const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        onCollectionChange({ ...collectionObject, collectionName: e.target.value }, id)
+        currentCollection$.name$.next(e.target.value);
     }
 
     const onDeleteCollection = () => {
