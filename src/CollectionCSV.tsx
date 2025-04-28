@@ -1,112 +1,37 @@
-import { useMemo, useState } from "react";
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, IconButton, Stack, Tooltip } from "@mui/material";
-import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
-import EditIcon from '@mui/icons-material/Edit';
+import { useState } from "react";
+import { Accordion, AccordionDetails, AccordionSummary, IconButton, Stack, Tooltip } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { produce } from "immer";
 
-import { transformAllCollections, transformCollection } from "./compute";
 import { TextCSV } from "./TextCSV";
 import { TextFunc } from "./TextFunc";
+import { Collection } from "./data";
+import { CollectionSubject } from "./rxjs";
+import { useObservable } from "./react-rxjs";
+import { DataTable } from "./DataTale";
 
 // collection [] or [{application:'aze',...},...]
-export function CollectionCSV({ collections, onCollectionChange, id, onDelete: onDeleteParent }) {
+
+interface CollectionCSVProps {
+    collections: Collection[],
+    collectionsObs: CollectionSubject[],
+    id: number,
+    onDelete: (id: number) => void
+};
+
+export function CollectionCSV({ collections, collectionsObs, id, onDelete: onDeleteParent }
+    : CollectionCSVProps
+) {
 
     const collectionObject = collections[id];
-    const { collection: rows, func: funcStr, collectionName } = collectionObject;
+    const currentCollection$:CollectionSubject = collectionsObs[id];
 
-    // const [funcStr, setFuncStr] = useState("");
-    // const [rows, setRows] = useState([]);
-    //const [collectionName, setCollectionName] = useState('rows' + id);
-
-    const transformedCollections = useMemo(() => transformAllCollections(collections), [collections]);
-
-    const data = useMemo(() => transformCollection({ collectionName, collection: rows, func: funcStr }, transformedCollections).transformedCollection,
-        [collectionName, rows, funcStr, transformedCollections]
-    )
-
-    const columnsPatchPolicies = useMemo(() => {
-        const headers = data.length > 0 ? Object.keys(data[0]) : []
-        return headers.map(el => ({ accessorKey: el, header: el }))
-    }, [data])
-
-    const tablePatchPolicies = useMaterialReactTable({
-        columns: columnsPatchPolicies,
-        data: data,
-        enableEditing: true,
-        editDisplayMode: 'row',
-        onEditingRowSave: ({ row, table, values }) => {
-            const index = row.index
-            const newRows = produce(rows, draftRows => {
-                draftRows[index] = values
-            })
-            //setRows(newRows)
-            onCollectionChange({ ...collectionObject, collection: newRows }, id);
-            table.setEditingRow(null); //exit editing mode
-        },
-        onEditingRowCancel: () => {
-            //clear any validation errors
-        },
-        createDisplayMode: 'modal',
-        onCreatingRowSave: ({ table, values }) => {
-            const newRows = produce(rows, draftRows => {
-                draftRows.push(values)
-            })
-            // setRows(newRows)
-            onCollectionChange({ ...collectionObject, collection: newRows }, id);
-            table.setCreatingRow(null);
-        },
-        renderTopToolbarCustomActions: ({ table }) => (<>
-            <Tooltip title="Ajouter une ligne">
-                <IconButton onClick={() => { table.setCreatingRow(true) }}>
-                    <AddIcon />
-                </IconButton>
-            </Tooltip>
-            <Button onClick={onCSV_Import}>Import / Export</Button>
-            <Button onClick={onFuncShow}>Function</Button>
-        </>),
-        renderRowActions: ({ row, table }) => (
-            <Box sx={{ display: 'flex', gap: '1rem' }}>
-                <Tooltip title="Edit">
-                    <IconButton onClick={() => table.setEditingRow(row)}>
-                        <EditIcon />
-                    </IconButton>
-                </Tooltip>
-                <Tooltip title="Delete">
-                    <IconButton color="error" onClick={() => onDeleteRow(row)}>
-                        <DeleteIcon />
-                    </IconButton>
-                </Tooltip>
-            </Box>
-        )
-    });
-
-    const onDeleteRow = (row) => {
-        if (window.confirm('Are you sure you want to delete this row?')) {
-            const index = row.index
-            const newRows = produce(rows, draftRows => {
-                draftRows.splice(index, 1)
-            })
-            // setRows(newRows)
-            onCollectionChange({ ...collectionObject, collection: newRows }, id);
-        }
-    }
+    const data = useObservable(currentCollection$.result$, []);
+    const collectionName = useObservable(currentCollection$.name$, collectionObject.collectionName);
 
     const onCSV_Import = () => {
         setShowRawData(!rawDataShow);
         if (!rawDataShow) setFuncShow(false);
-    }
-
-    const onFuncStrChange = (value) => {
-        // setFuncStr(value);
-        onCollectionChange({ ...collectionObject, func: value }, id)
-    }
-
-    const onNameChange = (e) => {
-        //setCollectionName(e.target.value)
-        onCollectionChange({ ...collectionObject, collectionName: e.target.value }, id)
     }
 
     const [funcShow, setFuncShow] = useState(false)
@@ -125,8 +50,12 @@ export function CollectionCSV({ collections, onCollectionChange, id, onDelete: o
         setShowRawData(false);
     }
 
-    const onRawDataChange = (collection) => {
-        onCollectionChange(collection, id)
+    const onRowsChange = (rows: unknown[]) => {
+        currentCollection$.collection$.next(rows);
+    };
+
+    const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        currentCollection$.name$.next(e.target.value);
     }
 
     const onDeleteCollection = () => {
@@ -144,11 +73,11 @@ export function CollectionCSV({ collections, onCollectionChange, id, onDelete: o
         </AccordionSummary>
         <AccordionDetails >
             <Stack direction="row" spacing={2} >
-                <MaterialReactTable table={tablePatchPolicies} />
+                <DataTable data={data} onRowsChange={onRowsChange} onCSV_Import={onCSV_Import} onFuncShow={onFuncShow} />
 
-                {funcShow && <TextFunc collection={collectionObject} onTextChange={onFuncStrChange} onClose={onFuncClose} />}
+                {funcShow && <TextFunc collectionName={collectionObject.collectionName} funcObs={currentCollection$.func$} onClose={onFuncClose} />}
 
-                {rawDataShow && <TextCSV collection={collectionObject} onRawDataChange={onRawDataChange} onClose={onRawDataClose}></TextCSV>}
+                {rawDataShow && <TextCSV collectionName={collectionObject.collectionName} collectionObs={currentCollection$.collection$} onClose={onRawDataClose}></TextCSV>}
             </Stack>
         </AccordionDetails>
     </Accordion>)

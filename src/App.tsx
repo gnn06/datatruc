@@ -1,60 +1,43 @@
-import './App.css'
-import { useState } from 'react'
-import createPersistedState from 'use-persisted-state';
-
+import { useState } from 'react';
 import { produce, enableMapSet } from "immer"
 import { Box, Button } from '@mui/material';
 
+import './App.css'
 import { CollectionCSV } from './CollectionCSV';
+import { getAllObsWithDep, getCollectionFromObs as getCollectionFromObs, mergeCollectionObs } from './rxjs';
+import { Collection } from './data';
+import { restoreCollections } from './persist';
 
 enableMapSet();
 
-type VM_Row = {
-    vm: string;
-    cve: number;
-}
-
-type ApplicationPolicyRow = {
-    application: string;
-    patch_policy: string;
-}
-
-type Row = {
-    vm: string;
-    cve: number;
-    application: string;
-    patch_policy: string;
-};
-
-const usePersitCollectionState = createPersistedState('collections');
-
 function App() {
-    const [collections, setCollections] = usePersitCollectionState([{ collectionName: 'rows0', collection: [] }])
+    const [collections, setCollections] = useState<Collection[]>(restoreCollections());
+    const collections$ = getAllObsWithDep(collections);
 
-    const onCollectionChange = (collection, key) => {
-        const newCollections = produce(collections, draftCollections => {
-            draftCollections[key] = collection
-        })
-        setCollections(newCollections);
-    }
+    const merge$ = mergeCollectionObs(collections$);
+    merge$.subscribe(() => {
+        const collection = getCollectionFromObs(collections$);
+        localStorage.setItem('collections', JSON.stringify(collection));
+    });
 
     const onAddCollection = () => {
-        const newCollections = produce(collections, draftCollections => {
-            draftCollections.push({ collectionName: 'rows' + collections.length, collection: [] })
+        const newCollections = produce(getCollectionFromObs(collections$), (draftCollections) => {
+            const newCollection:Collection = { collectionName: 'rows' + collections.length, rows: [], func:'' };
+            draftCollections.push(newCollection)
         })
         setCollections(newCollections);
     }
 
     const onDeleteCollection = (index:number) => {
-        const newCollections = produce(collections, draftCollections => {
-            draftCollections.splice(index)
+        const newCollections = produce(getCollectionFromObs(collections$), (draftCollections) => {
+            draftCollections.splice(index,1)
         })
         setCollections(newCollections);
     }
 
     return (<Box>
-        {Array.from(collections).map((value, index) => <CollectionCSV key={index} id={index} collections={collections} 
-            onCollectionChange={onCollectionChange} onDelete={onDeleteCollection} />)}
+        {Array.from(collections).map((value, index) => <CollectionCSV key={index} id={index} collections={collections}
+            onDelete={onDeleteCollection} collectionsObs={collections$}/>)}
         <Button sx={{ mt: 1 }} onClick={onAddCollection}>Ajouter collection</Button>
     </Box>);
 }

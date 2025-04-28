@@ -1,15 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Papa from 'papaparse';
 import { ParseError } from 'papaparse';
 
 import { Text } from "./Text";
+import { useObservable } from './react-rxjs';
+import { map } from 'rxjs';
+import { CollectionSubject } from './rxjs';
 
-function getRawDataFromRows(collection) {
+function getRawDataFromRows(collection:unknown[]) {
     if (collection === undefined) return '';
-    const { collection: rows, meta, rawData } = collection;
-    if (rawData) return rawData;
-    if (rows === undefined) return '';
-    return Papa.unparse(rows, meta)
+    return Papa.unparse(collection)
 };
 
 function getMessageError(errors: ParseError[]): string {
@@ -20,12 +20,17 @@ function getMessageError(errors: ParseError[]): string {
     }).join('\n');
 }
 
-export function TextCSV({ collection, onRawDataChange, onClose }) {
+interface TextCSVProps {
+    collectionName: string,
+    collectionObs: CollectionSubject,
+    onClose: () => void
+};
 
-    const [rawData, setRawData] = useState(getRawDataFromRows(collection));
+export function TextCSV({ collectionName, collectionObs, onClose }: TextCSVProps) {
+
     const [errorMsg, setErrorMsg] = useState("");
 
-    const { collectionName } = collection;
+    const rawData = useObservable(collectionObs.pipe(map((value) => getRawDataFromRows(value))), "");
 
     // useEffect(() => {
     //     const rawData = getRawDataFromRows(collection);
@@ -33,9 +38,10 @@ export function TextCSV({ collection, onRawDataChange, onClose }) {
     // }, [collection])
 
     const onTextChange = (text: string) => {
-        setRawData(text);
+        // setRawData(text);
         if (text === '') {
-            onRawDataChange({ ...collection, collection: [], rawData: undefined, meta: undefined })
+            // onCollectionChange([])
+            collectionObs.next([]);
             return;
         }
         const csvConfig = { header: true, skipEmptyLines: true };
@@ -45,12 +51,15 @@ export function TextCSV({ collection, onRawDataChange, onClose }) {
             return;
         } else {
             setErrorMsg("");
-            onRawDataChange({ ...collection, collection: csvData.data, meta: csvData.meta, rawData: undefined });
+            // onCollectionChange(csvData.data);
+            collectionObs.next(csvData.data);
             return;
         }
         // setRows(csvData.data)
 
     }
+
+    
 
     return <>
         <Text text={rawData} errorMsg={errorMsg} onTextChange={onTextChange} onClose={onClose}

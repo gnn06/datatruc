@@ -1,4 +1,4 @@
-import { Children, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button, IconButton, Paper, Popper, Stack, Tooltip } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
@@ -8,7 +8,7 @@ import FilePicker from '@ihatecode/react-file-picker';
 import { saveAs } from "file-saver";
 import db from 'mime-db';
 
-function getExtensionFromMimeType(mimeType) {
+function getExtensionFromMimeType(mimeType:string) {
     const entry = db[mimeType];
     if (entry && entry.extensions && entry.extensions.length > 0) {
         return entry.extensions[0]; // souvent la plus courante
@@ -16,12 +16,23 @@ function getExtensionFromMimeType(mimeType) {
     return null;
 }
 
-export function Text({ text, errorMsg, onTextChange, onClose, collectionName = "", filenamePrefix = "function", mimeType = "text/javascript", children }) {
+export function Text({ text, errorMsg, onTextChange, onClose, collectionName = "", filenamePrefix = "function", mimeType = "text/javascript", children }
+    : {
+        text: string,
+        errorMsg: string,
+        onTextChange: (text: string) => void,
+        onClose: () => void,
+        collectionName?: string,
+        filenamePrefix?: string,
+        mimeType?: string,
+        children?: React.ReactNode
+    }
+) {
     
     const [isMaximize, setMaximize] = useState(false);
     const [showPopper, setShowPopper] = useState(false);
 
-    const onChange = (e) => {
+    const onChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         onTextChange(e.target.value);
     };
 

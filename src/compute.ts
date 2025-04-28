@@ -1,17 +1,22 @@
 import Enumerable from "linq";
 
-export function isTypeValid (collection) {
+import { Collection } from "./data";
+
+export function isTypeValid (collection:unknown[]) {
     return Object.values(collection[0]).some(el => typeof el !== 'string' && typeof el !== 'number');
 }
 
-export function createFunc(funcStr:string, collections:[]) {
+export function createFunc(funcStr:string, collections:Collection[]) {
     const funcParam = ['Enumerable', 'rows'].concat(collections.map(item => item.collectionName)).join(',');
     return new Function(funcParam, funcStr);
 }
 
-export function getData(funcStr, rows, collections) {
+export function getData(funcStr:string, rows:unknown[], collections:Collection[]) {
+    if (funcStr === undefined || funcStr === '') {
+        return rows;
+    }
     try {
-        const funcArg = [Enumerable, rows].concat(collections.map(item => item.transformedCollection));
+        const funcArg = [Enumerable, rows].concat(collections.map(item => item.rows));
         const func = createFunc(funcStr, collections);
         const newData = func(...funcArg)
         if (newData === undefined) {
@@ -31,25 +36,8 @@ export function getData(funcStr, rows, collections) {
     }
 }
 
-export function transformCollection(collection, collections) {
-    const { func: funcStr, collection: rows } = collection;
-    if (funcStr && funcStr !== '') {
-        const newData = getData(funcStr, rows, collections)
-        return { ...collection, transformedCollection: newData };
-    } else {
-        return { ...collection, transformedCollection: rows };
-    }
+export function getDependencies(func:string, collections:string[]) {
+    if (func === undefined) return [];
+    return collections.filter(coll => func.indexOf(coll) > -1);
 }
 
-export function transformAllCollections(collections) {
-    const newCollections = [];
-    const clone = collections.slice();
-    let el = clone.shift();
-    while (el) {
-        const tempCollections = newCollections.concat(clone)
-        const newCollection = transformCollection(el, tempCollections);
-        newCollections.push(newCollection);
-        el = clone.shift();
-    }
-    return newCollections;
-}

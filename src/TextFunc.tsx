@@ -1,24 +1,34 @@
 import { useState } from "react";
+import { BehaviorSubject } from "rxjs";
+import { useObservable } from "./react-rxjs";
 
 import { Text } from "./Text";
 import { createFunc } from "./compute";
 
-export function TextFunc({ collection, onTextChange, onClose }) {
+interface TextFuncProps {
+    collectionName: string,
+    funcObs: BehaviorSubject<string>,
+    onClose: () => void
+};
 
-    const { collectionName, func } = collection;
-
-    const [funcStr, setFuncStr] = useState(func);
+export function TextFunc({ collectionName, funcObs, onClose }
+    : TextFuncProps
+) {
+    
     const [errorMsg, setErrorMsg] = useState("");
 
     
+    const funcStr = useObservable(funcObs, "");
+    
     const onInnerTextChange = (text: string) => {
-        setFuncStr(text);
+        // setFuncStr(text);
+        funcObs.next(text);
         try {
             createFunc(text, []);
-            setErrorMsg("");
-            onTextChange(text);
+            setErrorMsg("");            
+            // onTextChange(text);
         } catch (error) {
-            setErrorMsg(error.message);            
+            setErrorMsg(error.message);
         }
     }
 
@@ -36,7 +46,7 @@ export function TextFunc({ collection, onTextChange, onClose }) {
                     left =&gt; left.prop1,<br />
                     right =&gt; right.prop2,<br />
                     (left, right) =&gt; &#123;...&#125;)</code></p>
-                    </>
+        </>
     </Text>
 
 }

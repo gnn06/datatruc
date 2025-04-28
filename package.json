@@ -9,7 +9,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d docs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -28,14 +28,17 @@
     "papaparse": "^5.5.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "rxjs": "^7.8.2",
     "use-persisted-state": "^0.3.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
     "@types/file-saver": "^2.0.7",
+    "@types/mime-db": "^1.43.5",
     "@types/papaparse": "^5.3.15",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
+    "@types/use-persisted-state": "^0.3.5",
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.21.0",
     "eslint-plugin-react-hooks": "^5.1.0",
