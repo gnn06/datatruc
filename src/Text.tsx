@@ -16,7 +16,7 @@ function getExtensionFromMimeType(mimeType:string) {
     return null;
 }
 
-export function Text({ text, errorMsg, onTextChange, onClose, collectionName = "", filenamePrefix = "function", mimeType = "text/javascript", children }
+export function Text({ text, errorMsg, onTextChange, onClose, collectionName = "", filenamePrefix = "function", mimeType = "text/javascript", otherButton, children }
     : {
         text: string,
         errorMsg: string,
@@ -25,6 +25,7 @@ export function Text({ text, errorMsg, onTextChange, onClose, collectionName = "
         collectionName?: string,
         filenamePrefix?: string,
         mimeType?: string,
+        otherButton?: React.ReactNode,
         children?: React.ReactNode
     }
 ) {
@@ -88,6 +89,7 @@ export function Text({ text, errorMsg, onTextChange, onClose, collectionName = "
                     onChange={(files) => onUpload(files)}><Button>Open</Button>
                 </FilePicker>
                 <Button onClick={onDownload}>Save</Button>
+                { otherButton }
                 <Tooltip title="Show help"><IconButton onClick={handleClick} disabled={children === undefined}><HelpIcon /></IconButton></Tooltip>
                 <Tooltip title="Full screen"><IconButton onClick={() => setMaximize(true)}><FullscreenIcon /></IconButton></Tooltip>
                 <Tooltip title="Close panel"><IconButton onClick={onClose}><CloseIcon /></IconButton></Tooltip>

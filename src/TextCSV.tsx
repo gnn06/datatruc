@@ -1,16 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Papa from 'papaparse';
 import { ParseError } from 'papaparse';
-
-import { Text } from "./Text";
+import { Button } from '@mui/material';
 import { useObservable } from './react-rxjs';
 import { map } from 'rxjs';
-import { CollectionSubject } from './rxjs';
 
-function getRawDataFromRows(collection:unknown[]) {
-    if (collection === undefined) return '';
-    return Papa.unparse(collection)
-};
+import { Text } from "./Text";
+import { CollectionSubject } from './rxjs';
+import { getRawDataFromRows } from './csv-parse';
 
 function getMessageError(errors: ParseError[]): string {
     return errors.map((error) => {
@@ -23,10 +20,11 @@ function getMessageError(errors: ParseError[]): string {
 interface TextCSVProps {
     collectionName: string,
     collectionObs: CollectionSubject,
-    onClose: () => void
+    onClose: () => void,
+    onResultExport: () => void,
 };
 
-export function TextCSV({ collectionName, collectionObs, onClose }: TextCSVProps) {
+export function TextCSV({ collectionName, collectionObs, onClose, onResultExport }: TextCSVProps) {
 
     const [errorMsg, setErrorMsg] = useState("");
 
@@ -59,10 +57,10 @@ export function TextCSV({ collectionName, collectionObs, onClose }: TextCSVProps
 
     }
 
-    
+    const otherButton = <Button onClick={onResultExport}>Export Result</Button>
 
     return <>
-        <Text text={rawData} errorMsg={errorMsg} onTextChange={onTextChange} onClose={onClose}
+        <Text text={rawData} otherButton={otherButton} errorMsg={errorMsg} onTextChange={onTextChange} onClose={onClose}
             mimeType="text/csv" filenamePrefix="data" collectionName={collectionName}></Text>
     </>
 }
