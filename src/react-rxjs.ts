@@ -9,5 +9,5 @@ export function useObservable(obs$, initialValue) {
         });
         return () => subscription.unsubscribe();
     }, [obs$])
-    return value;
+    return [value,setValue];
 }

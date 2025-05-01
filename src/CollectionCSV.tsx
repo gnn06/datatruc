@@ -28,8 +28,8 @@ export function CollectionCSV({ collections, collectionsObs, id, onDelete: onDel
     const collectionObject = collections[id];
     const currentCollection$: CollectionSubject = collectionsObs[id];
 
-    const data = useObservable(currentCollection$.result$, []);
-    const collectionName = useObservable(currentCollection$.name$, collectionObject.collectionName);
+    const [data] = useObservable(currentCollection$.result$, []);
+    const [collectionName] = useObservable(currentCollection$.name$, collectionObject.collectionName);
 
     const onCSV_Import = () => {
         setShowRawData(!rawDataShow);
@@ -82,7 +82,7 @@ export function CollectionCSV({ collections, collectionsObs, id, onDelete: onDel
         </AccordionSummary>
         <AccordionDetails >
             <Stack direction="row" spacing={2} >
-                <DataTable data={data} collectionName={collectionObject.collectionName} onRowsChange={onRowsChange} onCSV_Import={onCSV_Import} onFuncShow={onFuncShow} />
+                <DataTable data={data} onRowsChange={onRowsChange} onCSV_Import={onCSV_Import} onFuncShow={onFuncShow} />
 
                 {funcShow && <TextFunc collectionName={collectionObject.collectionName} funcObs={currentCollection$.func$} onClose={onFuncClose} />}
 

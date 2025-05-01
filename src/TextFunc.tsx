@@ -18,7 +18,7 @@ export function TextFunc({ collectionName, funcObs, onClose }
     const [errorMsg, setErrorMsg] = useState("");
 
     
-    const funcStr = useObservable(funcObs, "");
+    const [funcStr] = useObservable(funcObs, "");
     
     const onInnerTextChange = (text: string) => {
         // setFuncStr(text);
