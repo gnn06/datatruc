@@ -39,14 +39,18 @@ export function TextCSV({ collectionName, collectionObs, onClose, onResultExport
         }
         const csvConfig = { header: true };
         const csvData = Papa.parse(text, csvConfig);
-        if (csvData.errors.length > 0) {
-            setErrorMsg(getMessageError(csvData.errors));
+        const BlockingErrorTypes = ["TooFew Fields", "Quotes"];
+        const errors = csvData.errors.filter((e) => BlockingErrorTypes.includes(e.code));
+        console.log(errors.length)
+        if (errors.length > 0) {
+            setErrorMsg(getMessageError(errors));
             setRawData(text);
             return;
         } else {
             setErrorMsg("");
             // onCollectionChange(csvData.data);
             collectionObs.next(csvData.data);
+            setRawData(text);
             return;
         }
         // setRows(csvData.data)
